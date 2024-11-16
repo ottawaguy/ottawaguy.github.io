@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hockey Coach Lineup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #roster, #lineup {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .player, .position {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+      cursor: grab;
+      background-color: #f9f9f9;
+    }
+    .player {
+      width: 120px;
+    }
+    .position {
+      width: 80px;
+      height: 50px;
+      background-color: #e9e9e9;
+    }
+    .position.filled {
+      background-color: #c3e6cb;
+    }
+    button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Hockey Coach Lineup</h1>
+
+<h2>Add Players to Roster</h2>
+<form id="addPlayerForm">
+  <label for="playerName">Name:</label>
+  <input type="text" id="playerName" required>
+  <label for="playerNumber">Number:</label>
+  <input type="number" id="playerNumber" required>
+  <label for="playerPosition">Position:</label>
+  <select id="playerPosition">
+    <option value="F">Forward</option>
+    <option value="D">Defense</option>
+    <option value="G">Goalie</option>
+  </select>
+  <button type="submit">Add Player</button>
+</form>
+
+<h2>Roster</h2>
+<div id="roster"></div>
+
+<h2>Lineup</h2>
+<div id="lineup">
+  <!-- Forwards -->
+  <div id="F1" class="position">F1</div>
+  <div id="F2" class="position">F2</div>
+  <div id="F3" class="position">F3</div>
+  <div id="F4" class="position">F4</div>
+  <div id="F5" class="position">F5</div>
+  <div id="F6" class="position">F6</div>
+  <div id="F7" class="position">F7</div>
+  <div id="F8" class="position">F8</div>
+  <div id="F9" class="position">F9</div>
+  
+  <!-- Defense -->
+  <div id="D1" class="position">D1</div>
+  <div id="D2" class="position">D2</div>
+  <div id="D3" class="position">D3</div>
+  <div id="D4" class="position">D4</div>
+  <div id="D5" class="position">D5</div>
+  <div id="D6" class="position">D6</div>
+
+  <!-- Goalie -->
+  <div id="G1" class="position">G1</div>
+</div>
+
+<button id="saveLineup">Save Lineup</button>
+<button id="loadLineup">Load Lineup</button>
+
+<script>
+  const roster = document.getElementById("roster");
+  const lineup = document.getElementById("lineup");
+  const form = document.getElementById("addPlayerForm");
+  const saveButton = document.getElementById("saveLineup");
+  const loadButton = document.getElementById("loadLineup");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("playerName").value;
+    const number = document.getElementById("playerNumber").value;
+    const position = document.getElementById("playerPosition").value;
+
+    const player = document.createElement("div");
+    player.className = "player";
+    player.draggable = true;
+    player.textContent = `${name} (#${number}) - ${position}`;
+    player.dataset.position = position;
+
+    player.addEventListener("dragstart", (event) => {
+      event.dataTransfer.setData("text", player.outerHTML);
+    });
+
+    roster.appendChild(player);
+    form.reset();
+  });
+
+  lineup.addEventListener("dragover", (event) => {
+    event.preventDefault();
+  });
+
+  lineup.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const data = event.dataTransfer.getData("text");
+    const droppedPlayer = document.createElement("div");
+    droppedPlayer.innerHTML = data;
+    const player = droppedPlayer.firstChild;
+    const target = event.target;
+
+    if (target.classList.contains("position") && !target.classList.contains("filled")) {
+      if (
+        (player.dataset.position === "F" && target.id.startsWith("F")) ||
+        (player.dataset.position === "D" && target.id.startsWith("D")) ||
+        (player.dataset.position === "G" && target.id.startsWith("G"))
+      ) {
+        target.textContent = player.textContent;
+        target.classList.add("filled");
+      } else {
+        alert("Player cannot be placed in this position!");
+      }
+    }
+  });
+
+  saveButton.addEventListener("click", () => {
+    const lineupData = {};
+    document.querySelectorAll(".position").forEach((slot) => {
+      lineupData[slot.id] = slot.textContent;
+    });
+    localStorage.setItem("lineup", JSON.stringify(lineupData));
+    alert("Lineup saved!");
+  });
+
+  loadButton.addEventListener("click", () => {
+    const lineupData = JSON.parse(localStorage.getItem("lineup"));
+    if (lineupData) {
+      document.querySelectorAll(".position").forEach((slot) => {
+        slot.textContent = lineupData[slot.id] || slot.id;
+        slot.classList.toggle("filled", !!lineupData[slot.id]);
+      });
+      alert("Lineup loaded!");
+    } else {
+      alert("No saved lineup found!");
+    }
+  });
+</script>
+
+</body>
+</html>
