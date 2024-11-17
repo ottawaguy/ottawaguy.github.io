@@ -6,7 +6,7 @@
   <title>Hockey Lineup Tool</title>
   <style>
     body {
-      background-color: black;
+      background-color: grey;
       color: white;
       font-family: Arial, sans-serif;
     }
@@ -105,7 +105,7 @@
         playerBox.textContent = playerName;
         playerBox.draggable = true;
         playerBox.addEventListener('dragstart', drag);
-        playerBox.addEventListener('longpress', deletePlayer);
+        playerBox.addEventListener('contextmenu', deletePlayer);
 
         document.getElementById('roster').appendChild(playerBox);
         roster.push(playerName);
@@ -134,6 +134,7 @@
     }
 
     function deletePlayer(event) {
+      event.preventDefault();
       if (confirm('Do you really want to delete this player?')) {
         event.target.remove();
         roster = roster.filter(player => player !== event.target.textContent);
