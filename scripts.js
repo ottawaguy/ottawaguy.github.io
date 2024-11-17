@@ -108,8 +108,3 @@ function clearAll() {
     };
     actionHistory = [];
 }
-
-document.querySelectorAll('.line, .pair, .spot').forEach(spot => {
-    spot.addEventListener('dragover', allowDrop);
-    spot.addEventListener('drop', drop);
-});
