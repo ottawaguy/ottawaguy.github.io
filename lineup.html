@@ -286,19 +286,31 @@
       const deleteButton = document.createElement("button");
       deleteButton.className = "delete-btn";
       deleteButton.textContent = "X";
-      deleteButton.addEventListener("click", () => {
-        if (confirm("Are you sure you want to delete this player from the roster?")) {
-          playerContainer.remove();
-          playerRoster.delete(playerName);
-        }
-      });
+      deleteButton.addEventListener("click", () => deletePlayer(playerName, playerContainer));
 
       playerContainer.appendChild(playerButton);
       playerContainer.appendChild(deleteButton);
       roster.appendChild(playerContainer);
-
       playerRoster.add(playerName);
       enableDragAndDrop(playerButton);
+    }
+
+    // Delete player from roster and lineup
+    function deletePlayer(playerName, playerContainer) {
+      // Remove from roster
+      playerContainer.remove();
+      playerRoster.delete(playerName);
+
+      // Remove from lineup if exists
+      lineupSpots.forEach(spot => {
+        if (spot.textContent === playerName) {
+          spot.textContent = "";
+          spot.classList.remove("filled");
+          playerInLineup.delete(playerName);
+        }
+      });
+
+      showFeedback(`Player "${playerName}" deleted.`);
     }
 
     // Handle player being dropped onto a lineup spot
@@ -342,8 +354,6 @@
           position.classList.remove("filled");
           position.textContent = "";
           playerInLineup.delete(lastAction.player);
-        } else if (lastAction.action === "delete") {
-          addPlayerToRoster(lastAction.player);
         }
       }
     });
