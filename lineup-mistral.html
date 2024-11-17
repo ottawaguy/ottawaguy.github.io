@@ -208,6 +208,13 @@
             const playerName = event.dataTransfer.getData('text/plain');
             const target = event.target;
             if (target.classList.contains('spot')) {
+                const existingPlayerBox = target.querySelector('.player-box');
+                if (existingPlayerBox) {
+                    const existingPlayerName = existingPlayerBox.textContent;
+                    removePlayerFromLineup(existingPlayerName);
+                    existingPlayerBox.remove();
+                }
+
                 const playerBox = document.createElement('div');
                 playerBox.className = 'player-box';
                 playerBox.textContent = playerName;
@@ -224,7 +231,6 @@
                 target.appendChild(playerBox);
                 actionHistory.push({ type: 'move', player: playerName, to: target.id });
                 removePlayerFromRoster(playerName);
-                removePlayerFromLineup(playerName);
             }
         }
 
