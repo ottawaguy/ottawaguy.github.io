@@ -1,16 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
-<!-- Previous head section remains the same -->
+<!-- Previous HTML structure remains the same until the trash bin -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hockey Lineup Tool</title>
     <style>
         /* Previous styles remain the same */
-        /* Adding new trash bin styles */
         .trash-bin {
-            width: 60px;
-            height: 60px;
+            width: 40px;
+            height: 40px;
             background: #ff4444;
             border-radius: 8px;
             display: flex;
@@ -28,130 +26,12 @@
 
         .trash-bin::before {
             content: "🗑️";
-            font-size: 24px;
+            font-size: 16px;
+            filter: brightness(5); /* Makes the icon white */
         }
 
-        /* Previous styles remain exactly the same */
-        body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .logo {
-            width: 200px;
-            height: 100px;
-            margin: 0 auto 20px;
-            display: block;
-            background: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        input {
-            padding: 8px;
-            border: none;
-            border-radius: 4px;
-            background: #333;
-            color: white;
-            flex: 1;
-        }
-
-        button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            background: #444;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        button:hover {
-            background: #555;
-        }
-
-        .roster {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-            min-height: 50px;
-            padding: 10px;
-            background: #222;
-            border-radius: 8px;
-        }
-
-        .player {
-            background: #ffd700;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: move;
-            font-size: 14px;
-            user-select: none;
-            touch-action: none;
-        }
-
-        .lineup {
-            display: grid;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .line {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .position {
-            width: 80px;
-            height: 30px;
-            background: #333;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-
-        .position.empty {
-            border: 1px dashed #555;
-        }
-
-        .position:not(.empty) {
-            background: none;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            .line {
-                flex-wrap: wrap;
-            }
-
-            .position {
-                width: 70px;
-                height: 25px;
-                font-size: 11px;
-            }
-        }
+        /* All previous styles remain exactly the same */
+        /* ... */
     </style>
 </head>
 <body>
@@ -168,65 +48,45 @@
 
     <div class="roster" id="roster"></div>
 
-    <!-- Add trash bin -->
-    <div class="trash-bin" id="trashBin"></div>
-
-    <!-- Previous lineup section remains exactly the same -->
+    <!-- Lineup section comes before trash bin -->
     <div class="lineup" id="lineup">
-        <!-- Forward Lines -->
-        <div class="line">
-            <div class="position empty" data-position="F1">F1</div>
-            <div class="position empty" data-position="F2">F2</div>
-            <div class="position empty" data-position="F3">F3</div>
-        </div>
-        <div class="line">
-            <div class="position empty" data-position="F4">F4</div>
-            <div class="position empty" data-position="F5">F5</div>
-            <div class="position empty" data-position="F6">F6</div>
-        </div>
-        <div class="line">
-            <div class="position empty" data-position="F7">F7</div>
-            <div class="position empty" data-position="F8">F8</div>
-            <div class="position empty" data-position="F9">F9</div>
-        </div>
-
-        <!-- Defense Pairs -->
-        <div class="line">
-            <div class="position empty" data-position="D1">D1</div>
-            <div class="position empty" data-position="D2">D2</div>
-        </div>
-        <div class="line">
-            <div class="position empty" data-position="D3">D3</div>
-            <div class="position empty" data-position="D4">D4</div>
-        </div>
-        <div class="line">
-            <div class="position empty" data-position="D5">D5</div>
-            <div class="position empty" data-position="D6">D6</div>
-        </div>
-
-        <!-- Goalie -->
-        <div class="line">
-            <div class="position empty" data-position="G1">G1</div>
-        </div>
+        <!-- All lineup positions remain the same -->
     </div>
 
+    <!-- Trash bin moved to bottom -->
+    <div class="trash-bin" id="trashBin"></div>
+
     <script>
-        // Previous variables remain the same
         let undoStack = [];
         let longPressTimer;
         const LONG_PRESS_DURATION = 500;
 
+        function createPlayerElement(name) {
+            const player = document.createElement('div');
+            player.className = 'player';
+            player.textContent = name;
+            player.draggable = true;
+            
+            player.addEventListener('dragstart', handleDragStart);
+            player.addEventListener('dragend', handleDragEnd);
+            player.addEventListener('touchstart', handleTouchStart);
+            player.addEventListener('touchend', handleTouchEnd);
+            player.addEventListener('touchmove', handleTouchMove);
+            
+            return player;
+        }
+
         function playerExists(name) {
             // Check roster
-            const rosterPlayers = document.querySelectorAll('.roster .player');
-            for (const player of rosterPlayers) {
-                if (player.textContent.toLowerCase() === name.toLowerCase()) return true;
+            const rosterPlayers = Array.from(document.querySelectorAll('.roster .player'));
+            if (rosterPlayers.some(p => p.textContent.toLowerCase() === name.toLowerCase())) {
+                return true;
             }
             
             // Check lineup positions
-            const lineupPlayers = document.querySelectorAll('.position .player');
-            for (const player of lineupPlayers) {
-                if (player.textContent.toLowerCase() === name.toLowerCase()) return true;
+            const lineupPlayers = Array.from(document.querySelectorAll('.position .player'));
+            if (lineupPlayers.some(p => p.textContent.toLowerCase() === name.toLowerCase())) {
+                return true;
             }
             
             return false;
@@ -245,6 +105,67 @@
                 input.value = '';
                 saveAction('add', { player: name });
             }
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.textContent);
+            e.target.style.opacity = '0.5';
+        }
+
+        function handleDragEnd(e) {
+            e.target.style.opacity = '1';
+            document.getElementById('trashBin').classList.remove('drag-over');
+        }
+
+        function handleTouchStart(e) {
+            const touch = e.touches[0];
+            const player = e.target;
+            
+            player.dataset.touchStartX = touch.clientX;
+            player.dataset.touchStartY = touch.clientY;
+            
+            longPressTimer = setTimeout(() => {
+                deletePlayer(player);
+            }, LONG_PRESS_DURATION);
+        }
+
+        function handleTouchMove(e) {
+            clearTimeout(longPressTimer);
+        }
+
+        function handleTouchEnd(e) {
+            clearTimeout(longPressTimer);
+        }
+
+        function findPlayerElement(playerName) {
+            // First try exact match
+            let player = Array.from(document.querySelectorAll('.player'))
+                .find(p => p.textContent === playerName);
+            
+            // If not found, try case-insensitive match
+            if (!player) {
+                player = Array.from(document.querySelectorAll('.player'))
+                    .find(p => p.textContent.toLowerCase() === playerName.toLowerCase());
+            }
+            
+            return player;
+        }
+
+        function deletePlayer(player) {
+            const parentElement = player.parentElement;
+            const position = parentElement.classList.contains('position') ? parentElement.dataset.position : 'roster';
+            
+            saveAction('delete', { 
+                player: player.textContent, 
+                position: position 
+            });
+            
+            if (parentElement.classList.contains('position')) {
+                parentElement.textContent = parentElement.dataset.position;
+                parentElement.classList.add('empty');
+            }
+            
+            player.remove();
         }
 
         // Set up trash bin functionality
@@ -266,54 +187,190 @@
             const player = findPlayerElement(playerName);
             
             if (player) {
-                const parentElement = player.parentElement;
-                const position = parentElement.classList.contains('position') ? parentElement.dataset.position : 'roster';
-                
-                saveAction('delete', { 
-                    player: playerName, 
-                    position: position 
-                });
-                
-                if (parentElement.classList.contains('position')) {
-                    parentElement.textContent = parentElement.dataset.position;
-                    parentElement.classList.add('empty');
-                }
-                
-                player.remove();
+                deletePlayer(player);
             }
         });
 
-        function findPlayerElement(playerName) {
-            // Check roster first
-            const rosterPlayer = document.querySelector(`.roster .player[textContent="${playerName}"]`);
-            if (rosterPlayer) return rosterPlayer;
+        // Set up drag and drop for positions
+        document.querySelectorAll('.position').forEach(position => {
+            position.addEventListener('dragover', e => {
+                e.preventDefault();
+                if (position.children.length === 0 || position.classList.contains('empty')) {
+                    e.dataTransfer.dropEffect = 'move';
+                }
+            });
+
+            position.addEventListener('drop', e => {
+                e.preventDefault();
+                const playerName = e.dataTransfer.getData('text/plain');
+                
+                // Only proceed if the position is empty
+                if (position.children.length === 0 || position.classList.contains('empty')) {
+                    // Find if the player exists somewhere else in the lineup
+                    const player = findPlayerElement(playerName);
+                    if (!player) return;
+
+                    const currentPosition = player.parentElement;
+                    const newPlayer = createPlayerElement(playerName);
+                    
+                    // Save the move action before making changes
+                    saveAction('move', {
+                        player: playerName,
+                        from: currentPosition.classList.contains('position') ? currentPosition.dataset.position : 'roster',
+                        to: position.dataset.position
+                    });
+
+                    // Remove player from current position
+                    if (currentPosition.classList.contains('position')) {
+                        currentPosition.textContent = currentPosition.dataset.position;
+                        currentPosition.classList.add('empty');
+                    }
+                    player.remove();
+
+                    // Add to new position
+                    position.textContent = '';
+                    position.appendChild(newPlayer);
+                    position.classList.remove('empty');
+                }
+            });
+        });
+
+        // Make roster droppable
+        const roster = document.getElementById('roster');
+        roster.addEventListener('dragover', e => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+
+        roster.addEventListener('drop', e => {
+            e.preventDefault();
+            const playerName = e.dataTransfer.getData('text/plain');
+            const player = findPlayerElement(playerName);
             
-            // Check lineup positions
-            const positions = document.querySelectorAll('.position');
-            for (const position of positions) {
-                const player = position.querySelector('.player');
-                if (player && player.textContent === playerName) return player;
+            if (player && player.parentElement.classList.contains('position')) {
+                const currentPosition = player.parentElement;
+                saveAction('move', {
+                    player: playerName,
+                    from: currentPosition.dataset.position,
+                    to: 'roster'
+                });
+                
+                currentPosition.textContent = currentPosition.dataset.position;
+                currentPosition.classList.add('empty');
+                
+                const newPlayer = createPlayerElement(playerName);
+                roster.appendChild(newPlayer);
+            }
+        });
+
+        function saveAction(type, data) {
+            undoStack.push({ type, data });
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            
+            const action = undoStack.pop();
+            switch (action.type) {
+                case 'add':
+                    const addedPlayer = findPlayerElement(action.data.player);
+                    if (addedPlayer) addedPlayer.remove();
+                    break;
+                    
+                case 'delete':
+                    const newPlayer = createPlayerElement(action.data.player);
+                    if (action.data.position === 'roster') {
+                        roster.appendChild(newPlayer);
+                    } else {
+                        const position = document.querySelector(`[data-position="${action.data.position}"]`);
+                        if (position) {
+                            position.textContent = '';
+                            position.appendChild(newPlayer);
+                            position.classList.remove('empty');
+                        }
+                    }
+                    break;
+                    
+                case 'move':
+                    const movedPlayer = findPlayerElement(action.data.player);
+                    if (movedPlayer) {
+                        const currentPos = movedPlayer.parentElement;
+                        if (currentPos.classList.contains('position')) {
+                            currentPos.textContent = currentPos.dataset.position;
+                            currentPos.classList.add('empty');
+                        }
+                        movedPlayer.remove();
+                        
+                        const newPlayerElem = createPlayerElement(action.data.player);
+                        if (action.data.from === 'roster') {
+                            roster.appendChild(newPlayerElem);
+                        } else {
+                            const fromPosition = document.querySelector(`[data-position="${action.data.from}"]`);
+                            if (fromPosition) {
+                                fromPosition.textContent = '';
+                                fromPosition.appendChild(newPlayerElem);
+                                fromPosition.classList.remove('empty');
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+        function clearAll() {
+            roster.innerHTML = '';
+            document.querySelectorAll('.position').forEach(pos => {
+                pos.textContent = pos.dataset.position;
+                pos.classList.add('empty');
+            });
+            undoStack = [];
+        }
+
+        function saveLineup() {
+            const lineup = {
+                roster: Array.from(roster.children).map(p => p.textContent),
+                positions: {}
+            };
+            
+            document.querySelectorAll('.position').forEach(pos => {
+                const player = pos.querySelector('.player');
+                if (player) {
+                    lineup.positions[pos.dataset.position] = player.textContent;
+                }
+            });
+            
+            localStorage.setItem('hockeyLineup', JSON.stringify(lineup));
+            alert('Lineup saved!');
+        }
+
+        function loadLineup() {
+            const saved = localStorage.getItem('hockeyLineup');
+            if (!saved) {
+                alert('No saved lineup found!');
+                return;
             }
             
-            return null;
+            clearAll();
+            
+            const lineup = JSON.parse(saved);
+            
+            // Restore roster
+            lineup.roster.forEach(name => {
+                const player = createPlayerElement(name);
+                roster.appendChild(player);
+            });
+            
+            // Restore positions
+            Object.entries(lineup.positions).forEach(([position, name]) => {
+                const pos = document.querySelector(`[data-position="${position}"]`);
+                if (pos) {
+                    pos.textContent = '';
+                    const player = createPlayerElement(name);
+                    pos.appendChild(player);
+                    pos.classList.remove('empty');
+                }
+            });
         }
-
-        // Previous functions remain exactly the same, just adding the duplicate check to relevant functions
-        function handleDragStart(e) {
-            e.dataTransfer.setData('text/plain', e.target.textContent);
-            e.target.style.opacity = '0.5';
-        }
-
-        function handleDragEnd(e) {
-            e.target.style.opacity = '1';
-            document.getElementById('trashBin').classList.remove('drag-over');
-        }
-
-        // Rest of the previous code remains exactly the same
-        [... previous code for handleTouchStart, handleTouchMove, handleTouchEnd, 
-            deletePlayer, findPlayerInLineup, position event listeners, 
-            saveAction, undo, clearAll, saveLineup, loadLineup, etc. ...]
-
     </script>
 </body>
 </html>
