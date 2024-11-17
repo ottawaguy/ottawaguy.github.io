@@ -1,0 +1,56 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    text-align: center;
+    padding: 1em;
+}
+
+header img {
+    max-width: 100px;
+}
+
+main {
+    padding: 1em;
+}
+
+section {
+    margin-bottom: 2em;
+}
+
+#roster, #lineup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#player-list, .line, .pair, .spot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.player-box {
+    background-color: yellow;
+    border-radius: 5px;
+    padding: 0.5em;
+    cursor: grab;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
