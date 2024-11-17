@@ -10,13 +10,17 @@
       margin: 0;
       background-color: black;
       color: white;
+      padding: 10px;
       max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     #logo {
+      margin-bottom: 20px;
       display: flex;
       justify-content: center;
-      margin-bottom: 20px;
     }
 
     #logo img {
@@ -24,22 +28,49 @@
       height: auto;
     }
 
+    h1, h2 {
+      text-align: left;
+      margin-left: 10px;
+    }
+
+    form {
+      text-align: left;
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    input {
+      padding: 6px;
+      font-size: 14px;
+      border-radius: 5px;
+      margin-left: 10px;
+    }
+
+    button {
+      background-color: #444;
+      color: white;
+      border: 1px solid #ccc;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px auto;
+      display: block;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #666;
+    }
+
     #roster, .line {
       display: flex;
       gap: 10px;
       margin-bottom: 15px;
       flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    #lineup {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .line {
-      justify-content: space-around;
+      justify-content: flex-start;
     }
 
     .position-container {
@@ -85,23 +116,14 @@
       white-space: nowrap;
     }
 
-    form {
-      text-align: center;
-      font-size: 14px;
-      margin-bottom: 10px;
+    .player.dragging {
+      opacity: 0.5;
     }
 
-    input {
-      padding: 6px;
-      margin-right: 10px;
-      font-size: 14px;
-      border-radius: 5px;
-    }
-
-    button {
-      background-color: #444;
+    .undo-btn {
+      background-color: #333;
       color: white;
-      border: 1px solid #ccc;
+      border: none;
       padding: 6px 12px;
       cursor: pointer;
       font-size: 14px;
@@ -110,22 +132,15 @@
       border-radius: 5px;
     }
 
-    button:hover {
-      background-color: #666;
+    .undo-btn:hover {
+      background-color: #555;
     }
 
-    h1, h2 {
-      text-align: center;
-      margin: 5px 0;
+    #saveLineup, #loadLineup, #clearLineup {
+      margin-top: 20px;
+      width: 100%;
     }
 
-    h1 {
-      font-size: 18px;
-    }
-
-    h2 {
-      font-size: 14px;
-    }
   </style>
 </head>
 <body>
@@ -235,73 +250,108 @@
 
 <button id="saveLineup">Save Lineup</button>
 <button id="loadLineup">Load Lineup</button>
+<button id="clearLineup">Clear Lineup</button>
+<button class="undo-btn" id="undoAction">Undo Last Action</button>
 
 <script>
   const roster = document.getElementById("roster");
   const form = document.getElementById("addPlayerForm");
+  let previousState = [];
 
-  // Function to enable drag and drop on player elements
   function enableDragAndDrop(element) {
     element.draggable = true;
+
     element.addEventListener("dragstart", (event) => {
       event.dataTransfer.setData("text/plain", element.id);
       event.target.classList.add("dragging");
     });
 
-    element.addEventListener("dragend", () => {
+    element.addEventListener("dragend", (event) => {
       event.target.classList.remove("dragging");
     });
   }
 
-  // Function to handle long press for deleting a player
   function handleLongPress(player) {
     let timeout;
     player.addEventListener("touchstart", (e) => {
       e.preventDefault();
       timeout = setTimeout(() => {
         player.remove();
-      }, 1000); // Delete after 1 second
+      }, 1000);
     });
-
     player.addEventListener("touchend", () => clearTimeout(timeout));
   }
 
-  // Add player to the roster
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const playerName = document.getElementById("playerName").value.trim();
-    if (!playerName) return;
-
+  function addPlayerToRoster(playerName) {
     const player = document.createElement("div");
     player.className = "player";
     player.textContent = playerName;
-    player.id = playerName; // Set the id to player's name for drag-and-drop
+    player.id = playerName;
     enableDragAndDrop(player);
     handleLongPress(player);
 
     roster.appendChild(player);
-    form.reset();
+    previousState.push({ action: "add", player: playerName });
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const playerName = document.getElementById("playerName").value;
+    if (playerName) {
+      addPlayerToRoster(playerName);
+      document.getElementById("playerName").value = "";
+    }
   });
 
-  // Handle drag-and-drop into the lineup positions
-  const positions = document.querySelectorAll(".position");
-
-  positions.forEach(position => {
-    position.addEventListener("dragover", (event) => {
-      event.preventDefault();
+  function handleDrop(position) {
+    position.addEventListener("dragover", (e) => {
+      e.preventDefault();
     });
 
-    position.addEventListener("drop", (event) => {
-      const playerName = event.dataTransfer.getData("text/plain");
+    position.addEventListener("drop", (e) => {
+      const playerName = e.dataTransfer.getData("text/plain");
       const playerElement = document.getElementById(playerName);
 
-      // Ensure player is only added once
       if (playerElement && !position.hasChildNodes()) {
         position.textContent = playerElement.textContent;
         position.classList.add("filled");
-        playerElement.remove(); // Remove player from roster once placed
+        playerElement.remove();
+        previousState.push({ action: "move", player: playerName, from: playerElement.parentElement.id, to: position.id });
       }
     });
+  }
+
+  const lineupPositions = document.querySelectorAll(".position");
+  lineupPositions.forEach((position) => handleDrop(position));
+
+  document.getElementById("clearLineup").addEventListener("click", () => {
+    const allPositions = document.querySelectorAll(".position");
+    allPositions.forEach((position) => {
+      position.textContent = "";
+      position.classList.remove("filled");
+    });
+
+    const allPlayers = roster.querySelectorAll(".player");
+    allPlayers.forEach((player) => player.remove());
+    previousState.push({ action: "clear" });
+  });
+
+  document.getElementById("undoAction").addEventListener("click", () => {
+    const lastAction = previousState.pop();
+    if (lastAction) {
+      if (lastAction.action === "move") {
+        const player = document.getElementById(lastAction.player);
+        const fromPosition = document.getElementById(lastAction.from);
+        const toPosition = document.getElementById(lastAction.to);
+        fromPosition.appendChild(player);
+        toPosition.textContent = "";
+      } else if (lastAction.action === "add") {
+        const player = document.getElementById(lastAction.player);
+        player.remove();
+      } else if (lastAction.action === "clear") {
+        // Handle clear undo if necessary
+      }
+    }
   });
 </script>
 
