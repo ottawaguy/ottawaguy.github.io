@@ -12,6 +12,21 @@
       padding: 20px;
     }
 
+    h1, h2 {
+      text-align: left;
+    }
+
+    .roster-container {
+      margin-bottom: 20px;
+    }
+
+    .roster {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
     .lineup-container {
       display: flex;
       flex-direction: column;
@@ -26,7 +41,7 @@
     }
 
     .position {
-      width: 120px;
+      width: 140px;
       height: 60px;
       border: 2px solid #fff;
       background-color: #333;
@@ -57,17 +72,12 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      text-align: center;
+      color: white;
     }
 
     .player-button.grey {
       background-color: grey;
-    }
-
-    .roster {
-      margin-bottom: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
     }
 
     #buttons {
@@ -113,15 +123,19 @@
 
   <h1>Cumberland Dukes Hockey Lineup Tool</h1>
 
-  <div class="roster">
+  <!-- Roster Section -->
+  <div class="roster-container">
+    <h2>Roster</h2>
     <form id="addPlayerForm">
       <input type="text" id="playerName" placeholder="Enter player name" required>
       <button type="submit">Add Player</button>
     </form>
-    <div id="roster"></div>
+    <div id="roster" class="roster"></div>
   </div>
 
+  <!-- Lineup Section -->
   <div class="lineup-container">
+    <h2>Lineup</h2>
     <!-- Forward Lines -->
     <div class="line">
       <div id="F1" class="position"><div class="position-label">F1</div></div>
@@ -159,6 +173,7 @@
     </div>
   </div>
 
+  <!-- Buttons -->
   <div id="buttons">
     <button id="saveLineup">Save</button>
     <button id="loadLineup">Load</button>
@@ -219,3 +234,4 @@
   </script>
 </body>
 </html>
+
