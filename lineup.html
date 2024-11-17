@@ -313,9 +313,9 @@
       const playerElement = document.getElementById(playerName);
 
       if (playerElement && !position.hasChildNodes()) {
-        position.textContent = playerElement.textContent;
+        position.appendChild(playerElement);
+        playerElement.style.backgroundColor = "yellow";
         position.classList.add("filled");
-        playerElement.remove();
         previousState.push({ action: "move", player: playerName, from: playerElement.parentElement.id, to: position.id });
       }
     });
