@@ -115,6 +115,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      min-width: 150px; /* Ensure the player name box is wide enough */
       position: relative;
     }
 
@@ -128,9 +129,9 @@
       right: 2px;
       background-color: red;
       color: white;
-      font-size: 12px;
+      font-size: 10px;
       border: none;
-      padding: 3px;
+      padding: 2px;
       cursor: pointer;
       border-radius: 5px;
     }
@@ -161,6 +162,12 @@
 
     #saveLineup, #loadLineup, #clearLineup {
       width: 30%;
+      font-size: 12px; /* Smaller buttons */
+      padding: 5px 10px;
+    }
+
+    #saveLineup, #loadLineup, #clearLineup, #undoAction {
+      width: 22%;
     }
 
   </style>
@@ -281,18 +288,12 @@
 <script>
   const roster = document.getElementById("roster");
   const form = document.getElementById("addPlayerForm");
-  let previousState = [];
+  const previousState = [];
 
-  function enableDragAndDrop(element) {
-    element.draggable = true;
-
-    element.addEventListener("dragstart", (event) => {
-      event.dataTransfer.setData("text/plain", element.id);
-      event.target.classList.add("dragging");
-    });
-
-    element.addEventListener("dragend", (event) => {
-      event.target.classList.remove("dragging");
+  function enableDragAndDrop(playerElement) {
+    playerElement.setAttribute("draggable", true);
+    playerElement.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", playerElement.id);
     });
   }
 
@@ -305,7 +306,9 @@
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "X";
     deleteButton.className = "delete-btn";
-    deleteButton.addEventListener("click", () => player.remove());
+    deleteButton.addEventListener("click", () => {
+      player.remove();
+    });
 
     player.appendChild(deleteButton);
     roster.appendChild(player);
