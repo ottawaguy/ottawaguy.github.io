@@ -21,13 +21,13 @@
 
     .line {
       display: flex;
-      gap: 15px;
+      gap: 10px;
       justify-content: flex-start;
     }
 
     .position {
-      width: 140px;
-      height: 70px;
+      width: 120px;
+      height: 60px;
       border: 2px solid #fff;
       background-color: #333;
       position: relative;
@@ -57,38 +57,17 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
     }
 
     .player-button.grey {
       background-color: grey;
     }
 
-    .player-container {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-      margin-bottom: 5px;
-    }
-
-    .delete-btn {
-      background-color: red;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      font-size: 12px;
-      cursor: pointer;
-      height: 20px;
-      width: 20px;
-      line-height: 16px;
-      text-align: center;
-    }
-
     .roster {
       margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     #buttons {
@@ -204,24 +183,15 @@
         alert("Player already in roster.");
         return;
       }
-      const playerContainer = document.createElement("div");
-      playerContainer.className = "player-container";
-
       const playerButton = document.createElement("button");
       playerButton.id = playerId;
       playerButton.textContent = playerName;
       playerButton.className = "player-button";
-
-      const deleteButton = document.createElement("button");
-      deleteButton.className = "delete-btn";
-      deleteButton.textContent = "X";
-      deleteButton.addEventListener("click", () => {
-        playerContainer.remove();
+      playerButton.addEventListener("click", () => {
+        playerButton.classList.add("grey");
       });
 
-      playerContainer.appendChild(playerButton);
-      playerContainer.appendChild(deleteButton);
-      roster.appendChild(playerContainer);
+      roster.appendChild(playerButton);
       enableDragAndDrop(playerButton);
     }
 
@@ -235,6 +205,7 @@
           spot.textContent = "";
           spot.appendChild(playerButton);
           spot.classList.add("filled");
+          playerButton.classList.add("grey");
         }
       });
     });
