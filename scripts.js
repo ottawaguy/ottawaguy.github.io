@@ -24,6 +24,7 @@ function addPlayer() {
 
 function dragStart(event) {
     event.dataTransfer.setData('text/plain', event.target.textContent);
+    event.dataTransfer.effectAllowed = 'move';
 }
 
 function allowDrop(event) {
