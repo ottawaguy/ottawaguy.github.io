@@ -7,8 +7,8 @@ let lineup = {
 let actionHistory = [];
 
 function addPlayer() {
-    const playerName = document.getElementById('player-name').value;
-    if (playerName) {
+    const playerName = document.getElementById('player-name').value.trim();
+    if (playerName && !players.includes(playerName)) {
         const playerBox = document.createElement('div');
         playerBox.className = 'player-box';
         playerBox.textContent = playerName;
@@ -34,17 +34,16 @@ function drop(event) {
     event.preventDefault();
     const playerName = event.dataTransfer.getData('text/plain');
     const target = event.target;
-    if (target.classList.contains('line') || target.classList.contains('pair') || target.classList.contains('spot')) {
-        if (target.children.length === 0) {
-            const playerBox = document.createElement('div');
-            playerBox.className = 'player-box';
-            playerBox.textContent = playerName;
-            playerBox.draggable = true;
-            playerBox.addEventListener('dragstart', dragStart);
-            playerBox.addEventListener('touchstart', longPress);
-            target.appendChild(playerBox);
-            actionHistory.push({ type: 'move', player: playerName, from: 'roster', to: target.id });
-        }
+    if (target.classList.contains('spot') && target.children.length === 0) {
+        const playerBox = document.createElement('div');
+        playerBox.className = 'player-box';
+        playerBox.textContent = playerName;
+        playerBox.draggable = true;
+        playerBox.addEventListener('dragstart', dragStart);
+        playerBox.addEventListener('touchstart', longPress);
+        target.appendChild(playerBox);
+        actionHistory.push({ type: 'move', player: playerName, to: target.id });
+        removePlayerFromRoster(playerName);
     }
 }
 
@@ -64,6 +63,14 @@ function longPress(event) {
     });
 }
 
+function removePlayerFromRoster(playerName) {
+    const playerBox = document.querySelector(`.player-box:contains(${playerName})`);
+    if (playerBox) {
+        playerBox.remove();
+        players = players.filter(p => p !== playerName);
+    }
+}
+
 function undoAction() {
     if (actionHistory.length > 0) {
         const lastAction = actionHistory.pop();
@@ -78,6 +85,14 @@ function undoAction() {
             if (playerIndex !== -1) {
                 players.splice(playerIndex, 1);
             }
+            const rosterPlayerBox = document.createElement('div');
+            rosterPlayerBox.className = 'player-box';
+            rosterPlayerBox.textContent = lastAction.player;
+            rosterPlayerBox.draggable = true;
+            rosterPlayerBox.addEventListener('dragstart', dragStart);
+            rosterPlayerBox.addEventListener('touchstart', longPress);
+            document.getElementById('player-list').appendChild(rosterPlayerBox);
+            players.push(lastAction.player);
         } else if (lastAction.type === 'delete') {
             const playerBox = document.createElement('div');
             playerBox.className = 'player-box';
@@ -93,13 +108,7 @@ function undoAction() {
 
 function clearAll() {
     document.getElementById('player-list').innerHTML = '';
-    document.getElementById('line1').innerHTML = '';
-    document.getElementById('line2').innerHTML = '';
-    document.getElementById('line3').innerHTML = '';
-    document.getElementById('pair1').innerHTML = '';
-    document.getElementById('pair2').innerHTML = '';
-    document.getElementById('pair3').innerHTML = '';
-    document.getElementById('goalie-spot').innerHTML = '';
+    document.querySelectorAll('.spot').forEach(spot => spot.innerHTML = '');
     players = [];
     lineup = {
         forwards: [[], [], []],
