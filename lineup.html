@@ -120,6 +120,19 @@
       opacity: 0.5;
     }
 
+    .delete-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background-color: red;
+      color: white;
+      font-size: 12px;
+      border: none;
+      padding: 3px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
     .undo-btn {
       background-color: #333;
       color: white;
@@ -287,19 +300,25 @@
     player.className = "player";
     player.textContent = playerName;
     player.id = playerName;
+    
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "X";
+    deleteButton.className = "delete-btn";
+    deleteButton.addEventListener("click", () => player.remove());
+
+    player.appendChild(deleteButton);
+    roster.appendChild(player);
     enableDragAndDrop(player);
     handleLongPress(player);
-
-    roster.appendChild(player);
-    previousState.push({ action: "add", player: playerName });
   }
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const playerName = document.getElementById("playerName").value;
-    if (playerName) {
+    if (playerName.trim() !== "") {
       addPlayerToRoster(playerName);
       document.getElementById("playerName").value = "";
+      previousState.push({ action: "add", player: playerName });
     }
   });
 
