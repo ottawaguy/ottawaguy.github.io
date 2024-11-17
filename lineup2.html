@@ -1,376 +1,52 @@
 <!DOCTYPE html>
-<!-- Previous HTML structure remains the same until the trash bin -->
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hockey Lineup Tool</title>
-    <style>
-        /* Previous styles remain the same */
-        .trash-bin {
-            width: 40px;
-            height: 40px;
-            background: #ff4444;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px auto;
-            cursor: pointer;
-            position: relative;
-            transition: background-color 0.3s;
-        }
-
-        .trash-bin.drag-over {
-            background: #ff6666;
-        }
-
-        .trash-bin::before {
-            content: "🗑️";
-            font-size: 16px;
-            filter: brightness(5); /* Makes the icon white */
-        }
-
-        /* All previous styles remain exactly the same */
-        /* ... */
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hockey Lineup Tool</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="logo">Cumberland Dukes Hockey</div>
-    
-    <div class="controls">
-        <input type="text" id="playerInput" placeholder="Enter player name">
-        <button onclick="addPlayer()">Add</button>
-        <button onclick="undo()">Undo</button>
-        <button onclick="clearAll()">Clear</button>
-        <button onclick="saveLineup()">Save</button>
-        <button onclick="loadLineup()">Load</button>
-    </div>
-
-    <div class="roster" id="roster"></div>
-
-    <!-- Lineup section comes before trash bin -->
-    <div class="lineup" id="lineup">
-        <!-- All lineup positions remain the same -->
-    </div>
-
-    <!-- Trash bin moved to bottom -->
-    <div class="trash-bin" id="trashBin"></div>
-
-    <script>
-        let undoStack = [];
-        let longPressTimer;
-        const LONG_PRESS_DURATION = 500;
-
-        function createPlayerElement(name) {
-            const player = document.createElement('div');
-            player.className = 'player';
-            player.textContent = name;
-            player.draggable = true;
-            
-            player.addEventListener('dragstart', handleDragStart);
-            player.addEventListener('dragend', handleDragEnd);
-            player.addEventListener('touchstart', handleTouchStart);
-            player.addEventListener('touchend', handleTouchEnd);
-            player.addEventListener('touchmove', handleTouchMove);
-            
-            return player;
-        }
-
-        function playerExists(name) {
-            // Check roster
-            const rosterPlayers = Array.from(document.querySelectorAll('.roster .player'));
-            if (rosterPlayers.some(p => p.textContent.toLowerCase() === name.toLowerCase())) {
-                return true;
-            }
-            
-            // Check lineup positions
-            const lineupPlayers = Array.from(document.querySelectorAll('.position .player'));
-            if (lineupPlayers.some(p => p.textContent.toLowerCase() === name.toLowerCase())) {
-                return true;
-            }
-            
-            return false;
-        }
-
-        function addPlayer() {
-            const input = document.getElementById('playerInput');
-            const name = input.value.trim();
-            if (name) {
-                if (playerExists(name)) {
-                    alert('This player is already in the lineup!');
-                    return;
-                }
-                const player = createPlayerElement(name);
-                document.getElementById('roster').appendChild(player);
-                input.value = '';
-                saveAction('add', { player: name });
-            }
-        }
-
-        function handleDragStart(e) {
-            e.dataTransfer.setData('text/plain', e.target.textContent);
-            e.target.style.opacity = '0.5';
-        }
-
-        function handleDragEnd(e) {
-            e.target.style.opacity = '1';
-            document.getElementById('trashBin').classList.remove('drag-over');
-        }
-
-        function handleTouchStart(e) {
-            const touch = e.touches[0];
-            const player = e.target;
-            
-            player.dataset.touchStartX = touch.clientX;
-            player.dataset.touchStartY = touch.clientY;
-            
-            longPressTimer = setTimeout(() => {
-                deletePlayer(player);
-            }, LONG_PRESS_DURATION);
-        }
-
-        function handleTouchMove(e) {
-            clearTimeout(longPressTimer);
-        }
-
-        function handleTouchEnd(e) {
-            clearTimeout(longPressTimer);
-        }
-
-        function findPlayerElement(playerName) {
-            // First try exact match
-            let player = Array.from(document.querySelectorAll('.player'))
-                .find(p => p.textContent === playerName);
-            
-            // If not found, try case-insensitive match
-            if (!player) {
-                player = Array.from(document.querySelectorAll('.player'))
-                    .find(p => p.textContent.toLowerCase() === playerName.toLowerCase());
-            }
-            
-            return player;
-        }
-
-        function deletePlayer(player) {
-            const parentElement = player.parentElement;
-            const position = parentElement.classList.contains('position') ? parentElement.dataset.position : 'roster';
-            
-            saveAction('delete', { 
-                player: player.textContent, 
-                position: position 
-            });
-            
-            if (parentElement.classList.contains('position')) {
-                parentElement.textContent = parentElement.dataset.position;
-                parentElement.classList.add('empty');
-            }
-            
-            player.remove();
-        }
-
-        // Set up trash bin functionality
-        const trashBin = document.getElementById('trashBin');
-        
-        trashBin.addEventListener('dragover', e => {
-            e.preventDefault();
-            trashBin.classList.add('drag-over');
-        });
-
-        trashBin.addEventListener('dragleave', () => {
-            trashBin.classList.remove('drag-over');
-        });
-
-        trashBin.addEventListener('drop', e => {
-            e.preventDefault();
-            trashBin.classList.remove('drag-over');
-            const playerName = e.dataTransfer.getData('text/plain');
-            const player = findPlayerElement(playerName);
-            
-            if (player) {
-                deletePlayer(player);
-            }
-        });
-
-        // Set up drag and drop for positions
-        document.querySelectorAll('.position').forEach(position => {
-            position.addEventListener('dragover', e => {
-                e.preventDefault();
-                if (position.children.length === 0 || position.classList.contains('empty')) {
-                    e.dataTransfer.dropEffect = 'move';
-                }
-            });
-
-            position.addEventListener('drop', e => {
-                e.preventDefault();
-                const playerName = e.dataTransfer.getData('text/plain');
-                
-                // Only proceed if the position is empty
-                if (position.children.length === 0 || position.classList.contains('empty')) {
-                    // Find if the player exists somewhere else in the lineup
-                    const player = findPlayerElement(playerName);
-                    if (!player) return;
-
-                    const currentPosition = player.parentElement;
-                    const newPlayer = createPlayerElement(playerName);
-                    
-                    // Save the move action before making changes
-                    saveAction('move', {
-                        player: playerName,
-                        from: currentPosition.classList.contains('position') ? currentPosition.dataset.position : 'roster',
-                        to: position.dataset.position
-                    });
-
-                    // Remove player from current position
-                    if (currentPosition.classList.contains('position')) {
-                        currentPosition.textContent = currentPosition.dataset.position;
-                        currentPosition.classList.add('empty');
-                    }
-                    player.remove();
-
-                    // Add to new position
-                    position.textContent = '';
-                    position.appendChild(newPlayer);
-                    position.classList.remove('empty');
-                }
-            });
-        });
-
-        // Make roster droppable
-        const roster = document.getElementById('roster');
-        roster.addEventListener('dragover', e => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        });
-
-        roster.addEventListener('drop', e => {
-            e.preventDefault();
-            const playerName = e.dataTransfer.getData('text/plain');
-            const player = findPlayerElement(playerName);
-            
-            if (player && player.parentElement.classList.contains('position')) {
-                const currentPosition = player.parentElement;
-                saveAction('move', {
-                    player: playerName,
-                    from: currentPosition.dataset.position,
-                    to: 'roster'
-                });
-                
-                currentPosition.textContent = currentPosition.dataset.position;
-                currentPosition.classList.add('empty');
-                
-                const newPlayer = createPlayerElement(playerName);
-                roster.appendChild(newPlayer);
-            }
-        });
-
-        function saveAction(type, data) {
-            undoStack.push({ type, data });
-        }
-
-        function undo() {
-            if (undoStack.length === 0) return;
-            
-            const action = undoStack.pop();
-            switch (action.type) {
-                case 'add':
-                    const addedPlayer = findPlayerElement(action.data.player);
-                    if (addedPlayer) addedPlayer.remove();
-                    break;
-                    
-                case 'delete':
-                    const newPlayer = createPlayerElement(action.data.player);
-                    if (action.data.position === 'roster') {
-                        roster.appendChild(newPlayer);
-                    } else {
-                        const position = document.querySelector(`[data-position="${action.data.position}"]`);
-                        if (position) {
-                            position.textContent = '';
-                            position.appendChild(newPlayer);
-                            position.classList.remove('empty');
-                        }
-                    }
-                    break;
-                    
-                case 'move':
-                    const movedPlayer = findPlayerElement(action.data.player);
-                    if (movedPlayer) {
-                        const currentPos = movedPlayer.parentElement;
-                        if (currentPos.classList.contains('position')) {
-                            currentPos.textContent = currentPos.dataset.position;
-                            currentPos.classList.add('empty');
-                        }
-                        movedPlayer.remove();
-                        
-                        const newPlayerElem = createPlayerElement(action.data.player);
-                        if (action.data.from === 'roster') {
-                            roster.appendChild(newPlayerElem);
-                        } else {
-                            const fromPosition = document.querySelector(`[data-position="${action.data.from}"]`);
-                            if (fromPosition) {
-                                fromPosition.textContent = '';
-                                fromPosition.appendChild(newPlayerElem);
-                                fromPosition.classList.remove('empty');
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-
-        function clearAll() {
-            roster.innerHTML = '';
-            document.querySelectorAll('.position').forEach(pos => {
-                pos.textContent = pos.dataset.position;
-                pos.classList.add('empty');
-            });
-            undoStack = [];
-        }
-
-        function saveLineup() {
-            const lineup = {
-                roster: Array.from(roster.children).map(p => p.textContent),
-                positions: {}
-            };
-            
-            document.querySelectorAll('.position').forEach(pos => {
-                const player = pos.querySelector('.player');
-                if (player) {
-                    lineup.positions[pos.dataset.position] = player.textContent;
-                }
-            });
-            
-            localStorage.setItem('hockeyLineup', JSON.stringify(lineup));
-            alert('Lineup saved!');
-        }
-
-        function loadLineup() {
-            const saved = localStorage.getItem('hockeyLineup');
-            if (!saved) {
-                alert('No saved lineup found!');
-                return;
-            }
-            
-            clearAll();
-            
-            const lineup = JSON.parse(saved);
-            
-            // Restore roster
-            lineup.roster.forEach(name => {
-                const player = createPlayerElement(name);
-                roster.appendChild(player);
-            });
-            
-            // Restore positions
-            Object.entries(lineup.positions).forEach(([position, name]) => {
-                const pos = document.querySelector(`[data-position="${position}"]`);
-                if (pos) {
-                    pos.textContent = '';
-                    const player = createPlayerElement(name);
-                    pos.appendChild(player);
-                    pos.classList.remove('empty');
-                }
-            });
-        }
-    </script>
+  <header>
+    <img src="cumberland-dukes-logo.png" alt="Cumberland Dukes Hockey Logo" class="logo">
+  </header>
+  <main>
+    <section id="roster-management">
+      <label for="player-input">Player Name:</label>
+      <input type="text" id="player-input" placeholder="Enter player name">
+      <button id="add-player">Add Player</button>
+      <button id="clear-all">Clear All</button>
+      <button id="undo-action">Undo</button>
+      <div id="roster"></div>
+    </section>
+    <section id="lineup">
+      <div class="lineup-row" id="forwards">
+        <h3>Forwards</h3>
+        <div id="F1" class="lineup-spot"></div>
+        <div id="F2" class="lineup-spot"></div>
+        <div id="F3" class="lineup-spot"></div>
+        <div id="F4" class="lineup-spot"></div>
+        <div id="F5" class="lineup-spot"></div>
+        <div id="F6" class="lineup-spot"></div>
+        <div id="F7" class="lineup-spot"></div>
+        <div id="F8" class="lineup-spot"></div>
+        <div id="F9" class="lineup-spot"></div>
+      </div>
+      <div class="lineup-row" id="defensemen">
+        <h3>Defensemen</h3>
+        <div id="D1" class="lineup-spot"></div>
+        <div id="D2" class="lineup-spot"></div>
+        <div id="D3" class="lineup-spot"></div>
+        <div id="D4" class="lineup-spot"></div>
+        <div id="D5" class="lineup-spot"></div>
+        <div id="D6" class="lineup-spot"></div>
+      </div>
+      <div class="lineup-row" id="goalie">
+        <h3>Goalie</h3>
+        <div id="G1" class="lineup-spot"></div>
+      </div>
+    </section>
+  </main>
+  <script src="script.js"></script>
 </body>
 </html>
