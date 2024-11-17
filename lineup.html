@@ -38,8 +38,8 @@
       font-size: 14px;
       margin-bottom: 10px;
       display: flex;
-      flex-direction: column;
       gap: 5px;
+      align-items: center;
     }
 
     input {
@@ -56,10 +56,9 @@
       padding: 6px 12px;
       cursor: pointer;
       font-size: 14px;
-      margin: 5px auto;
+      margin: 5px;
       display: block;
       border-radius: 5px;
-      width: 100%;
     }
 
     button:hover {
@@ -125,15 +124,15 @@
 
     .delete-btn {
       position: absolute;
-      top: 2px;
-      right: 2px;
+      top: -5px;
+      right: -5px;
       background-color: red;
       color: white;
       font-size: 10px;
       border: none;
       padding: 2px;
       cursor: pointer;
-      border-radius: 5px;
+      border-radius: 50%;
     }
 
     .undo-btn {
@@ -143,10 +142,9 @@
       padding: 6px 12px;
       cursor: pointer;
       font-size: 14px;
-      margin: 5px auto;
+      margin: 5px;
       display: block;
       border-radius: 5px;
-      width: 100%;
     }
 
     .undo-btn:hover {
@@ -155,26 +153,23 @@
 
     #buttons {
       display: flex;
-      justify-content: space-evenly;
+      justify-content: flex-start;
       width: 100%;
       margin-top: 20px;
     }
 
-    #saveLineup, #loadLineup, #clearLineup {
-      width: 30%;
+    #saveLineup, #loadLineup, #clearLineup, #undoAction {
+      width: auto;
       font-size: 12px;
       padding: 5px 10px;
+      margin-right: 5px;
     }
 
-    #saveLineup, #loadLineup, #clearLineup, #undoAction {
-      width: 22%;
-    }
-
-    /* Style for roster delete button outside of player name */
     .player-container {
       display: flex;
       align-items: center;
       position: relative;
+      margin-bottom: 5px;
     }
 
     .player-button {
@@ -187,12 +182,10 @@
       text-align: center;
       cursor: pointer;
       border: 1px solid #ccc;
+      margin-right: 10px;
     }
 
     .delete-btn {
-      position: absolute;
-      right: -15px;
-      top: -5px;
       background-color: red;
       color: white;
       font-size: 10px;
@@ -302,12 +295,13 @@
   <!-- Goalie -->
   <div class="line">
     <div class="position-container">
-      <span class="position-label">G1</span>
-      <div id="G1" class="position"></div>
+      <span class="position-label">G</span>
+      <div id="G" class="position"></div>
     </div>
   </div>
 </div>
 
+<!-- Buttons -->
 <div id="buttons">
   <button id="saveLineup">Save Lineup</button>
   <button id="loadLineup">Load Lineup</button>
@@ -317,13 +311,17 @@
 
 <script>
   const roster = document.getElementById("roster");
-  const form = document.getElementById("addPlayerForm");
+  const lineup = document.getElementById("lineup");
   const previousState = [];
 
   function enableDragAndDrop(playerElement) {
     playerElement.setAttribute("draggable", true);
     playerElement.addEventListener("dragstart", (e) => {
       e.dataTransfer.setData("text/plain", playerElement.id);
+      playerElement.classList.add("dragging");
+    });
+    playerElement.addEventListener("dragend", () => {
+      playerElement.classList.remove("dragging");
     });
   }
 
@@ -349,7 +347,8 @@
     enableDragAndDrop(playerButton);
   }
 
-  form.addEventListener("submit", (e) => {
+  // Add player to roster
+  document.getElementById("addPlayerForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const playerName = document.getElementById("playerName").value;
     if (playerName.trim() !== "") {
@@ -359,6 +358,7 @@
     }
   });
 
+  // Handle the lineup drop action
   function handleDrop(position) {
     position.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -377,9 +377,11 @@
     });
   }
 
+  // Attach drop listeners to each lineup position
   const lineupPositions = document.querySelectorAll(".position");
   lineupPositions.forEach((position) => handleDrop(position));
 
+  // Clear lineup action
   document.getElementById("clearLineup").addEventListener("click", () => {
     const allPositions = document.querySelectorAll(".position");
     allPositions.forEach((position) => {
@@ -389,6 +391,7 @@
     previousState.push({ action: "clear" });
   });
 
+  // Undo last action
   document.getElementById("undoAction").addEventListener("click", () => {
     const lastAction = previousState.pop();
     if (lastAction) {
