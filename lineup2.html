@@ -4,7 +4,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hockey Lineup Tool</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto;
+      width: 100px;
+    }
+    #lineup, #roster-management {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .lineup-row {
+      margin: 20px 0;
+    }
+    .lineup-spot, .player-box {
+      background-color: yellow;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 5px;
+      text-align: center;
+      border: 1px solid white;
+      display: inline-block;
+    }
+    #roster {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: white;
+      color: black;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -47,6 +89,73 @@
       </div>
     </section>
   </main>
-  <script src="script.js"></script>
+  <script>
+    document.getElementById('add-player').addEventListener('click', addPlayer);
+    document.getElementById('clear-all').addEventListener('click', clearAll);
+    document.getElementById('undo-action').addEventListener('click', undoAction);
+
+    let roster = [];
+    let history = [];
+
+    function addPlayer() {
+      const playerName = document.getElementById('player-input').value;
+      if (playerName) {
+        const playerBox = document.createElement('div');
+        playerBox.classList.add('player-box');
+        playerBox.textContent = playerName;
+        playerBox.draggable = true;
+        playerBox.addEventListener('dragstart', drag);
+        playerBox.addEventListener('longpress', deletePlayer);
+
+        document.getElementById('roster').appendChild(playerBox);
+        roster.push(playerName);
+        history.push({ action: 'add', player: playerName });
+        document.getElementById('player-input').value = '';
+      }
+    }
+
+    function clearAll() {
+      document.getElementById('roster').innerHTML = '';
+      document.querySelectorAll('.lineup-spot').forEach(spot => spot.innerHTML = '');
+      roster = [];
+      history = [];
+    }
+
+    function undoAction() {
+      const lastAction = history.pop();
+      if (lastAction) {
+        if (lastAction.action === 'add') {
+          const playerBoxes = document.querySelectorAll('.player-box');
+          playerBoxes[playerBoxes.length - 1].remove();
+          roster.pop();
+        }
+        // Add logic for other actions
+      }
+    }
+
+    function deletePlayer(event) {
+      if (confirm('Do you really want to delete this player?')) {
+        event.target.remove();
+        roster = roster.filter(player => player !== event.target.textContent);
+        history.push({ action: 'delete', player: event.target.textContent });
+      }
+    }
+
+    function drag(event) {
+      event.dataTransfer.setData('text/plain', event.target.textContent);
+    }
+
+    document.querySelectorAll('.lineup-spot').forEach(spot => {
+      spot.addEventListener('dragover', event => event.preventDefault());
+      spot.addEventListener('drop', event => {
+        event.preventDefault();
+        const playerName = event.dataTransfer.getData('text/plain');
+        if (!event.target.textContent) {
+          event.target.textContent = playerName;
+          event.target.classList.add('player-box');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
