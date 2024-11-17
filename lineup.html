@@ -3,417 +3,293 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hockey Coach Lineup</title>
+  <title>Hockey Lineup Tool</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: black;
+      background-color: #222;
       color: white;
-      padding: 10px;
-      max-width: 100%;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .lineup-container {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    #logo {
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: center;
-    }
-
-    #logo img {
-      width: 100px;
-      height: auto;
-    }
-
-    h1, h2 {
-      text-align: left;
-      margin-left: 10px;
-    }
-
-    form {
-      text-align: left;
-      font-size: 14px;
-      margin-bottom: 10px;
-      display: flex;
-      gap: 5px;
-      align-items: center;
-    }
-
-    input {
-      padding: 6px;
-      font-size: 14px;
-      border-radius: 5px;
-      margin-left: 10px;
-    }
-
-    button {
-      background-color: #444;
-      color: white;
-      border: 1px solid #ccc;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 14px;
-      margin: 5px;
-      display: block;
-      border-radius: 5px;
-    }
-
-    button:hover {
-      background-color: #666;
-    }
-
-    #roster, .line {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
+      justify-content: space-around;
       flex-wrap: wrap;
-      justify-content: flex-start;
-    }
-
-    .position-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .position-label {
-      font-size: 10px;
+      margin-bottom: 20px;
     }
 
     .position {
-      width: 180px; /* Wider position boxes */
-      height: 80px; /* Taller position boxes */
-      background-color: #444;
+      width: 120px;
+      height: 80px;
+      border: 2px solid #fff;
+      margin: 10px;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      font-size: 14px;
       position: relative;
-      border-radius: 5px;
-      border: 1px solid #666;
-      overflow: hidden;
+      background-color: #333;
     }
 
     .position.filled {
-      background-color: #555;
-    }
-
-    .player {
-      padding: 10px;
-      font-size: 14px;
-      text-align: center;
-      background-color: yellow;
-      color: black;
-      cursor: grab;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      display: inline-block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      min-width: 150px;
-      position: relative;
-    }
-
-    .player.dragging {
-      opacity: 0.5;
-    }
-
-    .delete-btn {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background-color: red;
-      color: white;
-      font-size: 10px;
-      border: none;
-      padding: 2px;
-      cursor: pointer;
-      border-radius: 50%;
-    }
-
-    .undo-btn {
-      background-color: #333;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 14px;
-      margin: 5px;
-      display: block;
-      border-radius: 5px;
-    }
-
-    .undo-btn:hover {
-      background-color: #555;
-    }
-
-    #buttons {
-      display: flex;
-      justify-content: flex-start;
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    #saveLineup, #loadLineup, #clearLineup, #undoAction {
-      width: auto;
-      font-size: 12px;
-      padding: 5px 10px;
-      margin-right: 5px;
-    }
-
-    .player-container {
-      display: flex;
-      align-items: center;
-      position: relative;
-      margin-bottom: 5px;
+      background-color: #444;
     }
 
     .player-button {
       background-color: yellow;
-      color: black;
-      padding: 10px;
+      padding: 5px 10px;
+      margin: 3px;
       font-size: 14px;
+      border: none;
       border-radius: 5px;
-      min-width: 150px;
-      text-align: center;
       cursor: pointer;
-      border: 1px solid #ccc;
-      margin-right: 10px;
+      min-width: 15ch;
     }
 
     .delete-btn {
       background-color: red;
       color: white;
-      font-size: 10px;
       border: none;
-      padding: 2px;
-      cursor: pointer;
       border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 5px;
+      margin-left: 5px;
+    }
+
+    .player-container {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .roster {
+      max-width: 300px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    #buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    .line {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+    }
+
+    .feedback {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #444;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 16px;
+      display: none;
+      z-index: 999;
     }
   </style>
 </head>
 <body>
 
-<!-- Logo Section -->
-<div id="logo">
-  <img src="https://upload.wikimedia.org/wikipedia/en/e/e9/Cumberland_Dukes_Hockey_Logo.png" alt="Cumberland Dukes Logo">
-</div>
+  <h1>Cumberland Dukes Hockey Lineup Tool</h1>
 
-<h1>Hockey Coach Lineup</h1>
+  <div class="roster">
+    <h3>Roster</h3>
+    <form id="addPlayerForm">
+      <input type="text" id="playerName" placeholder="Enter player name" required>
+      <button type="submit">Add Player</button>
+    </form>
 
-<h2>Add Players to Roster</h2>
-<form id="addPlayerForm">
-  <input type="text" id="playerName" placeholder="Player Name" required>
-  <button type="submit">Add Player</button>
-</form>
-
-<h2>Roster</h2>
-<div id="roster"></div>
-
-<h2>Lineup</h2>
-<div id="lineup">
-  <!-- Forwards -->
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">F1</span>
-      <div id="F1" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F2</span>
-      <div id="F2" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F3</span>
-      <div id="F3" class="position"></div>
-    </div>
-  </div>
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">F4</span>
-      <div id="F4" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F5</span>
-      <div id="F5" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F6</span>
-      <div id="F6" class="position"></div>
-    </div>
-  </div>
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">F7</span>
-      <div id="F7" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F8</span>
-      <div id="F8" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F9</span>
-      <div id="F9" class="position"></div>
+    <div id="roster">
+      <!-- Player names will appear here -->
     </div>
   </div>
 
-  <!-- Defense -->
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">D1</span>
-      <div id="D1" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">D2</span>
-      <div id="D2" class="position"></div>
-    </div>
-  </div>
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">D3</span>
-      <div id="D3" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">D4</span>
-      <div id="D4" class="position"></div>
-    </div>
-  </div>
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">D5</span>
-      <div id="D5" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">D6</span>
-      <div id="D6" class="position"></div>
-    </div>
+  <div class="lineup-container">
+    <div id="F1" class="position">F1</div>
+    <div id="F2" class="position">F2</div>
+    <div id="F3" class="position">F3</div>
+    <div id="F4" class="position">F4</div>
+    <div id="F5" class="position">F5</div>
+    <div id="F6" class="position">F6</div>
+    <div id="F7" class="position">F7</div>
+    <div id="F8" class="position">F8</div>
+    <div id="F9" class="position">F9</div>
+    <div id="D1" class="position">D1</div>
+    <div id="D2" class="position">D2</div>
+    <div id="D3" class="position">D3</div>
+    <div id="D4" class="position">D4</div>
+    <div id="D5" class="position">D5</div>
+    <div id="D6" class="position">D6</div>
+    <div id="G" class="position">G</div>
   </div>
 
-  <!-- Goalie -->
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">G</span>
-      <div id="G" class="position"></div>
-    </div>
+  <div id="buttons">
+    <button id="saveLineup">Save</button>
+    <button id="loadLineup">Load</button>
+    <button id="clearLineup">Clear Lineup</button>
+    <button id="undoAction">Undo</button>
   </div>
-</div>
 
-<!-- Action Buttons -->
-<div id="buttons">
-  <button id="saveLineup">Save</button>
-  <button id="loadLineup">Load</button>
-  <button id="clearLineup">Clear Lineup</button>
-  <button id="undoAction">Undo</button>
-</div>
+  <div class="feedback" id="feedback"></div>
 
-<script>
-  const roster = document.getElementById("roster");
-  const lineup = document.getElementById("lineup");
-  const previousState = [];
+  <script>
+    const roster = document.getElementById("roster");
+    const lineup = document.getElementById("lineup");
+    const previousState = [];
+    const undoStack = [];
+    const redoStack = [];
 
-  function enableDragAndDrop(playerElement) {
-    playerElement.setAttribute("draggable", true);
-    playerElement.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("text/plain", playerElement.id);
-      playerElement.classList.add("dragging");
-    });
-    playerElement.addEventListener("dragend", () => {
-      playerElement.classList.remove("dragging");
-    });
-  }
-
-  function addPlayerToRoster(playerName) {
-    const playerContainer = document.createElement("div");
-    playerContainer.className = "player-container";
-    
-    const playerButton = document.createElement("button");
-    playerButton.className = "player-button";
-    playerButton.textContent = playerName;
-    playerButton.id = playerName;
-
-    const deleteButton = document.createElement("button");
-    deleteButton.className = "delete-btn";
-    deleteButton.textContent = "X";
-    deleteButton.addEventListener("click", () => {
-      playerContainer.remove();
-    });
-
-    playerContainer.appendChild(playerButton);
-    playerContainer.appendChild(deleteButton);
-    roster.appendChild(playerContainer);
-    enableDragAndDrop(playerButton);
-  }
-
-  // Add player to roster
-  document.getElementById("addPlayerForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const playerName = document.getElementById("playerName").value;
-    if (playerName.trim() !== "") {
-      addPlayerToRoster(playerName);
-      document.getElementById("playerName").value = "";
-      previousState.push({ action: "add", player: playerName });
+    function showFeedback(message) {
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = message;
+      feedback.style.display = "block";
+      setTimeout(() => feedback.style.display = "none", 2000);
     }
-  });
 
-  // Handle the lineup drop action
-  function handleDrop(position) {
-    position.addEventListener("dragover", (e) => {
+    function enableDragAndDrop(playerElement) {
+      playerElement.setAttribute("draggable", true);
+      playerElement.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", playerElement.id);
+        playerElement.classList.add("dragging");
+      });
+      playerElement.addEventListener("dragend", () => {
+        playerElement.classList.remove("dragging");
+      });
+    }
+
+    function addPlayerToRoster(playerName) {
+      const playerContainer = document.createElement("div");
+      playerContainer.className = "player-container";
+      
+      const playerButton = document.createElement("button");
+      playerButton.className = "player-button";
+      playerButton.textContent = playerName;
+      playerButton.id = playerName;
+
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "delete-btn";
+      deleteButton.textContent = "X";
+      deleteButton.addEventListener("click", () => {
+        if (confirm("Are you sure you want to delete this player from the roster?")) {
+          playerContainer.remove();
+          previousState.push({ action: "delete", player: playerName });
+        }
+      });
+
+      playerContainer.appendChild(playerButton);
+      playerContainer.appendChild(deleteButton);
+      roster.appendChild(playerContainer);
+      enableDragAndDrop(playerButton);
+    }
+
+    document.getElementById("addPlayerForm").addEventListener("submit", (e) => {
       e.preventDefault();
-    });
-
-    position.addEventListener("drop", (e) => {
-      const playerName = e.dataTransfer.getData("text/plain");
-      const playerElement = document.getElementById(playerName);
-
-      if (playerElement && !position.hasChildNodes()) {
-        position.appendChild(playerElement);
-        playerElement.style.backgroundColor = "yellow";
-        position.classList.add("filled");
-        previousState.push({ action: "move", player: playerName, from: playerElement.parentElement.id, to: position.id });
-
-        // Change background to grey in roster if player is moved to lineup
-        const playerButton = document.getElementById(playerName);
-        playerButton.style.backgroundColor = "grey";
+      const playerName = document.getElementById("playerName").value;
+      if (playerName.trim() !== "") {
+        addPlayerToRoster(playerName);
+        document.getElementById("playerName").value = "";
+        previousState.push({ action: "add", player: playerName });
       }
     });
-  }
 
-  // Attach drop listeners to each lineup position
-  const lineupPositions = document.querySelectorAll(".position");
-  lineupPositions.forEach((position) => handleDrop(position));
+    function handleDrop(position) {
+      position.addEventListener("dragover", (e) => {
+        e.preventDefault();
+      });
 
-  // Clear lineup action
-  document.getElementById("clearLineup").addEventListener("click", () => {
-    const allPositions = document.querySelectorAll(".position");
-    allPositions.forEach((position) => {
-      position.textContent = "";
-      position.classList.remove("filled");
-    });
-    previousState.push({ action: "clear" });
-  });
+      position.addEventListener("drop", (e) => {
+        const playerName = e.dataTransfer.getData("text/plain");
+        const playerElement = document.getElementById(playerName);
 
-  // Undo last action
-  document.getElementById("undoAction").addEventListener("click", () => {
-    const lastAction = previousState.pop();
-    if (lastAction) {
-      if (lastAction.action === "move") {
-        const player = document.getElementById(lastAction.player);
-        const fromPosition = document.getElementById(lastAction.from);
-        const toPosition = document.getElementById(lastAction.to);
-        fromPosition.appendChild(player);
-        toPosition.textContent = "";
-      } else if (lastAction.action === "add") {
-        const player = document.getElementById(lastAction.player);
-        player.remove();
-      } else if (lastAction.action === "clear") {
-        // Handle clear undo if necessary
-      }
+        if (playerElement && !position.hasChildNodes()) {
+          position.appendChild(playerElement);
+          playerElement.style.backgroundColor = "yellow";
+          position.classList.add("filled");
+          previousState.push({ action: "move", player: playerName, from: playerElement.parentElement.id, to: position.id });
+
+          // Change background to grey in roster if player is moved to lineup
+          const playerButton = document.getElementById(playerName);
+          playerButton.style.backgroundColor = "grey";
+          showFeedback(`${playerName} moved to ${position.id}`);
+        }
+      });
     }
-  });
-</script>
+
+    const lineupPositions = document.querySelectorAll(".position");
+    lineupPositions.forEach((position) => handleDrop(position));
+
+    document.getElementById("clearLineup").addEventListener("click", () => {
+      const allPositions = document.querySelectorAll(".position");
+      allPositions.forEach((position) => {
+        position.textContent = "";
+        position.classList.remove("filled");
+      });
+      previousState.push({ action: "clear" });
+    });
+
+    document.getElementById("undoAction").addEventListener("click", () => {
+      const lastAction = previousState.pop();
+      if (lastAction) {
+        if (lastAction.action === "move") {
+          const player = document.getElementById(lastAction.player);
+          const fromPosition = document.getElementById(lastAction.from);
+          const toPosition = document.getElementById(lastAction.to);
+          fromPosition.appendChild(player);
+          toPosition.textContent = "";
+          showFeedback(`Undo: ${lastAction.player} moved back`);
+        } else if (lastAction.action === "add") {
+          const player = document.getElementById(lastAction.player);
+          player.remove();
+        } else if (lastAction.action === "delete") {
+          addPlayerToRoster(lastAction.player);
+        } else if (lastAction.action === "clear") {
+          lineupPositions.forEach((position) => position.textContent = "");
+        }
+      }
+    });
+
+    document.getElementById("saveLineup").addEventListener("click", () => {
+      localStorage.setItem("hockeyLineup", JSON.stringify(previousState));
+      showFeedback("Lineup saved.");
+    });
+
+    document.getElementById("loadLineup").addEventListener("click", () => {
+      const savedLineup = JSON.parse(localStorage.getItem("hockeyLineup"));
+      if (savedLineup) {
+        savedLineup.forEach((action) => {
+          if (action.action === "add") {
+            addPlayerToRoster(action.player);
+          }
+        });
+      }
+    });
+  </script>
 
 </body>
 </html>
