@@ -7,67 +7,91 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 10px;
       background-color: black;
       color: white;
+      max-width: 100%;
     }
+
     #roster, .line {
       display: flex;
-      gap: 10px;
+      gap: 5px;
       margin-bottom: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
+
     #lineup {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 15px;
     }
+
     .player, .position {
-      padding: 10px;
+      padding: 8px;
       border: 1px solid #ccc;
       text-align: center;
       cursor: grab;
       background-color: #333;
       color: white;
+      font-size: 14px;
     }
+
     .player {
-      width: 120px;
+      width: 100px;
+      margin: 5px;
     }
+
     .position {
-      width: 80px;
-      height: 50px;
+      width: 70px;
+      height: 40px;
       background-color: #444;
     }
+
     .position.filled {
       background-color: #555;
     }
+
     button {
-      margin-top: 10px;
       background-color: #444;
       color: white;
       border: 1px solid #ccc;
-      padding: 5px 10px;
+      padding: 8px 12px;
       cursor: pointer;
+      font-size: 14px;
+      margin: 5px auto;
+      display: block;
     }
+
     button:hover {
       background-color: #666;
+    }
+
+    form {
+      text-align: center;
+    }
+
+    input {
+      padding: 5px;
+      margin-right: 5px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-<h1>Hockey Coach Lineup</h1>
+<h1 style="text-align: center;">Hockey Coach Lineup</h1>
 
-<h2>Add Players to Roster</h2>
+<h2 style="text-align: center;">Add Players to Roster</h2>
 <form id="addPlayerForm">
-  <label for="playerName">Name:</label>
-  <input type="text" id="playerName" required>
+  <input type="text" id="playerName" placeholder="Player Name" required>
   <button type="submit">Add Player</button>
 </form>
 
-<h2>Roster</h2>
+<h2 style="text-align: center;">Roster</h2>
 <div id="roster"></div>
 
-<h2>Lineup</h2>
+<h2 style="text-align: center;">Lineup</h2>
 <div id="lineup">
   <!-- Forwards -->
   <div class="line">
@@ -118,12 +142,14 @@
 
   function enableDragAndDrop(element) {
     element.draggable = true;
+
     element.addEventListener("dragstart", (event) => {
       event.dataTransfer.setData("text/plain", element.outerHTML);
       event.target.classList.add("dragging");
     });
+
     element.addEventListener("dragend", () => {
-      element.classList.remove("dragging");
+      event.target.classList.remove("dragging");
     });
   }
 
@@ -156,6 +182,7 @@
       // Remove player from previous slot
       const draggingElement = document.querySelector(".dragging");
       if (draggingElement) {
+        draggingElement.parentNode.innerHTML = draggingElement.parentNode.id; // Reset slot
         draggingElement.remove();
       }
 
