@@ -128,6 +128,23 @@
       display: none;
       z-index: 999;
     }
+
+    /* Make the input field for adding players more accessible */
+    input[type="text"] {
+      padding: 5px;
+      margin-right: 10px;
+      width: 200px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      background-color: #555;
+      color: white;
+      font-size: 14px;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -273,27 +290,16 @@
         if (confirm("Are you sure you want to delete this player from the roster?")) {
           playerContainer.remove();
           playerRoster.delete(playerName);
-          previousState.push({ action: "delete", player: playerName });
         }
       });
 
       playerContainer.appendChild(playerButton);
       playerContainer.appendChild(deleteButton);
       roster.appendChild(playerContainer);
-      playerRoster.add(playerName);
 
+      playerRoster.add(playerName);
       enableDragAndDrop(playerButton);
     }
-
-    // Handle form submission to add a player
-    document.getElementById("addPlayerForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const playerName = document.getElementById("playerName").value.trim();
-      if (playerName) {
-        addPlayerToRoster(playerName);
-      }
-      document.getElementById("playerName").value = "";
-    });
 
     // Handle player being dropped onto a lineup spot
     function handleDrop(event) {
@@ -369,8 +375,17 @@
       playerInLineup.clear();
       showFeedback("Lineup cleared.");
     });
+
+    // Add player to roster when form is submitted
+    document.getElementById("addPlayerForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const playerName = document.getElementById("playerName").value.trim();
+      if (playerName && !playerRoster.has(playerName)) {
+        addPlayerToRoster(playerName);
+      }
+      document.getElementById("playerName").value = "";
+    });
   </script>
 
 </body>
 </html>
-
