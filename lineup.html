@@ -59,6 +59,7 @@
       margin: 5px auto;
       display: block;
       border-radius: 5px;
+      width: 100%;
     }
 
     button:hover {
@@ -114,6 +115,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      position: relative;
     }
 
     .player.dragging {
@@ -143,6 +145,7 @@
       margin: 5px auto;
       display: block;
       border-radius: 5px;
+      width: 100%;
     }
 
     .undo-btn:hover {
@@ -297,10 +300,10 @@
 
   function addPlayerToRoster(playerName) {
     const player = document.createElement("div");
+    player.id = playerName;
     player.className = "player";
     player.textContent = playerName;
-    player.id = playerName;
-    
+
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "X";
     deleteButton.className = "delete-btn";
@@ -373,6 +376,5 @@
     }
   });
 </script>
-
 </body>
 </html>
