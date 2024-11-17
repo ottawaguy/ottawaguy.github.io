@@ -41,7 +41,7 @@
     }
 
     .position {
-      width: 140px;
+      width: 160px;
       height: 60px;
       border: 2px solid #fff;
       background-color: #333;
@@ -207,9 +207,10 @@
       });
     }
 
-    function deletePlayer(playerId) {
+    function deletePlayerFromRoster(playerId) {
       const playerElement = document.getElementById(playerId);
       if (playerElement) playerElement.remove();
+
       lineupSpots.forEach(spot => {
         if (spot.querySelector(`#${playerId}`)) {
           spot.classList.remove("filled");
@@ -222,6 +223,18 @@
       });
     }
 
+    function deletePlayerFromLineup(spot) {
+      const playerElement = spot.querySelector(".player-button");
+      if (playerElement) {
+        spot.classList.remove("filled");
+        spot.textContent = "";
+        const label = document.createElement("div");
+        label.className = "position-label";
+        label.textContent = spot.id;
+        spot.appendChild(label);
+      }
+    }
+
     function addPlayerToRoster(playerName) {
       const playerId = playerName.replace(/\s+/g, "_");
       if (document.getElementById(playerId)) {
@@ -231,7 +244,7 @@
       const playerButton = document.createElement("div");
       playerButton.id = playerId;
       playerButton.className = "player-button";
-      playerButton.innerHTML = `${playerName} <button class="delete-button" onclick="deletePlayer('${playerId}')">X</button>`;
+      playerButton.innerHTML = `${playerName} <button class="delete-button" onclick="deletePlayerFromRoster('${playerId}')">X</button>`;
       roster.appendChild(playerButton);
       enableDragAndDrop(playerButton);
     }
@@ -244,7 +257,9 @@
         const playerButton = document.getElementById(playerId);
         if (!spot.classList.contains("filled")) {
           spot.textContent = "";
-          spot.appendChild(playerButton.cloneNode(true));
+          const newPlayerButton = playerButton.cloneNode(true);
+          newPlayerButton.querySelector(".delete-button").onclick = () => deletePlayerFromLineup(spot);
+          spot.appendChild(newPlayerButton);
           spot.classList.add("filled");
           document.getElementById(playerId).classList.add("blue");
         }
