@@ -103,7 +103,7 @@
     }
 
     .player {
-      padding: 4px;
+      padding: 10px;
       font-size: 14px;
       text-align: center;
       background-color: yellow;
@@ -115,7 +115,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      min-width: 150px; /* Ensure the player name box is wide enough */
+      min-width: 150px;
       position: relative;
     }
 
@@ -162,7 +162,7 @@
 
     #saveLineup, #loadLineup, #clearLineup {
       width: 30%;
-      font-size: 12px; /* Smaller buttons */
+      font-size: 12px;
       padding: 5px 10px;
     }
 
@@ -170,6 +170,37 @@
       width: 22%;
     }
 
+    /* Style for roster delete button outside of player name */
+    .player-container {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .player-button {
+      background-color: yellow;
+      color: black;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 5px;
+      min-width: 150px;
+      text-align: center;
+      cursor: pointer;
+      border: 1px solid #ccc;
+    }
+
+    .delete-btn {
+      position: absolute;
+      right: -15px;
+      top: -5px;
+      background-color: red;
+      color: white;
+      font-size: 10px;
+      border: none;
+      padding: 2px;
+      cursor: pointer;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
@@ -281,9 +312,8 @@
   <button id="saveLineup">Save Lineup</button>
   <button id="loadLineup">Load Lineup</button>
   <button id="clearLineup">Clear Lineup</button>
+  <button id="undoAction">Undo</button>
 </div>
-
-<button class="undo-btn" id="undoAction">Undo Last Action</button>
 
 <script>
   const roster = document.getElementById("roster");
@@ -298,21 +328,25 @@
   }
 
   function addPlayerToRoster(playerName) {
-    const player = document.createElement("div");
-    player.id = playerName;
-    player.className = "player";
-    player.textContent = playerName;
+    const playerContainer = document.createElement("div");
+    playerContainer.className = "player-container";
+    
+    const playerButton = document.createElement("button");
+    playerButton.className = "player-button";
+    playerButton.textContent = playerName;
+    playerButton.id = playerName;
 
     const deleteButton = document.createElement("button");
-    deleteButton.textContent = "X";
     deleteButton.className = "delete-btn";
+    deleteButton.textContent = "X";
     deleteButton.addEventListener("click", () => {
-      player.remove();
+      playerContainer.remove();
     });
 
-    player.appendChild(deleteButton);
-    roster.appendChild(player);
-    enableDragAndDrop(player);
+    playerContainer.appendChild(playerButton);
+    playerContainer.appendChild(deleteButton);
+    roster.appendChild(playerContainer);
+    enableDragAndDrop(playerButton);
   }
 
   form.addEventListener("submit", (e) => {
