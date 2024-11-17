@@ -152,9 +152,15 @@
       background-color: #555;
     }
 
-    #saveLineup, #loadLineup, #clearLineup {
-      margin-top: 20px;
+    #buttons {
+      display: flex;
+      justify-content: space-evenly;
       width: 100%;
+      margin-top: 20px;
+    }
+
+    #saveLineup, #loadLineup, #clearLineup {
+      width: 30%;
     }
 
   </style>
@@ -264,9 +270,12 @@
   </div>
 </div>
 
-<button id="saveLineup">Save Lineup</button>
-<button id="loadLineup">Load Lineup</button>
-<button id="clearLineup">Clear Lineup</button>
+<div id="buttons">
+  <button id="saveLineup">Save Lineup</button>
+  <button id="loadLineup">Load Lineup</button>
+  <button id="clearLineup">Clear Lineup</button>
+</div>
+
 <button class="undo-btn" id="undoAction">Undo Last Action</button>
 
 <script>
@@ -287,17 +296,6 @@
     });
   }
 
-  function handleLongPress(player) {
-    let timeout;
-    player.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      timeout = setTimeout(() => {
-        player.remove();
-      }, 1000);
-    });
-    player.addEventListener("touchend", () => clearTimeout(timeout));
-  }
-
   function addPlayerToRoster(playerName) {
     const player = document.createElement("div");
     player.id = playerName;
@@ -312,7 +310,6 @@
     player.appendChild(deleteButton);
     roster.appendChild(player);
     enableDragAndDrop(player);
-    handleLongPress(player);
   }
 
   form.addEventListener("submit", (e) => {
@@ -352,9 +349,6 @@
       position.textContent = "";
       position.classList.remove("filled");
     });
-
-    const allPlayers = roster.querySelectorAll(".player");
-    allPlayers.forEach((player) => player.remove());
     previousState.push({ action: "clear" });
   });
 
@@ -376,5 +370,6 @@
     }
   });
 </script>
+
 </body>
 </html>
