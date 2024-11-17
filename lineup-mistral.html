@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hockey Lineup Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="cumberland-dukes-logo.png" alt="Cumberland Dukes Hockey Logo">
+        <h1>Hockey Lineup Tool</h1>
+    </header>
+    <main>
+        <section id="roster">
+            <h2>Roster</h2>
+            <input type="text" id="player-name" placeholder="Enter player name">
+            <button onclick="addPlayer()">Add Player</button>
+            <div id="player-list"></div>
+        </section>
+        <section id="lineup">
+            <h2>Lineup</h2>
+            <div id="forwards">
+                <h3>Forwards</h3>
+                <div class="line" id="line1"></div>
+                <div class="line" id="line2"></div>
+                <div class="line" id="line3"></div>
+            </div>
+            <div id="defensemen">
+                <h3>Defensemen</h3>
+                <div class="pair" id="pair1"></div>
+                <div class="pair" id="pair2"></div>
+                <div class="pair" id="pair3"></div>
+            </div>
+            <div id="goalie">
+                <h3>Goalie</h3>
+                <div class="spot" id="goalie-spot"></div>
+            </div>
+        </section>
+        <button onclick="undoAction()">Undo</button>
+        <button onclick="clearAll()">Clear</button>
+    </main>
+    <script src="scripts.js"></script>
+</body>
+</html>
