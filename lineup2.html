@@ -3,160 +3,376 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hockey Lineup Tool</title>
+  <title>Hockey Coach Lineup</title>
   <style>
     body {
-      background-color: grey;
-      color: white;
       font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: black;
+      color: white;
+      padding: 10px;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
-    .logo {
-      display: block;
-      margin: 0 auto;
+
+    #logo {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    #logo img {
       width: 100px;
+      height: auto;
     }
-    #lineup, #roster-management {
+
+    h1, h2 {
+      text-align: left;
+      margin-left: 10px;
+    }
+
+    form {
+      text-align: left;
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    input {
+      padding: 6px;
+      font-size: 14px;
+      border-radius: 5px;
+      margin-left: 10px;
+    }
+
+    button {
+      background-color: #444;
+      color: white;
+      border: 1px solid #ccc;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px auto;
+      display: block;
+      border-radius: 5px;
+      width: auto;
+    }
+
+    button:hover {
+      background-color: #666;
+    }
+
+    #roster, .line {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .position-container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 2px;
     }
-    .lineup-row {
-      margin: 20px 0;
+
+    .position-label {
+      font-size: 10px;
     }
-    .lineup-spot, .player-box {
-      background-color: yellow;
-      border-radius: 5px;
-      padding: 10px;
-      margin: 5px;
-      text-align: center;
-      border: 1px solid white;
-      display: inline-block;
-    }
-    #roster {
+
+    .position {
+      width: 120px;
+      height: 50px;
+      background-color: #444;
       display: flex;
-      flex-wrap: wrap;
+      align-items: center;
       justify-content: center;
-    }
-    button {
-      margin: 5px;
-      padding: 10px;
-      border: none;
+      position: relative;
       border-radius: 5px;
-      background-color: white;
+      border: 1px solid #666;
+      overflow: hidden;
+    }
+
+    .position.filled {
+      background-color: #555;
+    }
+
+    .player {
+      padding: 4px;
+      font-size: 14px;
+      text-align: center;
+      background-color: yellow;
       color: black;
+      cursor: grab;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .player.dragging {
+      opacity: 0.5;
+    }
+
+    .undo-btn {
+      background-color: #333;
+      color: white;
+      border: none;
+      padding: 6px 12px;
       cursor: pointer;
+      font-size: 14px;
+      margin: 5px auto;
+      display: block;
+      border-radius: 5px;
+      width: auto;
+    }
+
+    .undo-btn:hover {
+      background-color: #555;
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="cumberland-dukes-logo.png" alt="Cumberland Dukes Hockey Logo" class="logo">
-  </header>
-  <main>
-    <section id="roster-management">
-      <label for="player-input">Player Name:</label>
-      <input type="text" id="player-input" placeholder="Enter player name">
-      <button id="add-player">Add Player</button>
-      <button id="clear-all">Clear All</button>
-      <button id="undo-action">Undo</button>
-      <div id="roster"></div>
-    </section>
-    <section id="lineup">
-      <div class="lineup-row" id="forwards">
-        <h3>Forwards</h3>
-        <div id="F1" class="lineup-spot"></div>
-        <div id="F2" class="lineup-spot"></div>
-        <div id="F3" class="lineup-spot"></div>
-        <div id="F4" class="lineup-spot"></div>
-        <div id="F5" class="lineup-spot"></div>
-        <div id="F6" class="lineup-spot"></div>
-        <div id="F7" class="lineup-spot"></div>
-        <div id="F8" class="lineup-spot"></div>
-        <div id="F9" class="lineup-spot"></div>
-      </div>
-      <div class="lineup-row" id="defensemen">
-        <h3>Defensemen</h3>
-        <div id="D1" class="lineup-spot"></div>
-        <div id="D2" class="lineup-spot"></div>
-        <div id="D3" class="lineup-spot"></div>
-        <div id="D4" class="lineup-spot"></div>
-        <div id="D5" class="lineup-spot"></div>
-        <div id="D6" class="lineup-spot"></div>
-      </div>
-      <div class="lineup-row" id="goalie">
-        <h3>Goalie</h3>
-        <div id="G1" class="lineup-spot"></div>
-      </div>
-    </section>
-  </main>
-  <script>
-    document.getElementById('add-player').addEventListener('click', addPlayer);
-    document.getElementById('clear-all').addEventListener('click', clearAll);
-    document.getElementById('undo-action').addEventListener('click', undoAction);
 
-    let roster = [];
-    let history = [];
+<!-- Logo Section -->
+<div id="logo">
+  <img src="https://upload.wikimedia.org/wikipedia/en/e/e9/Cumberland_Dukes_Hockey_Logo.png" alt="Cumberland Dukes Logo">
+</div>
 
-    function addPlayer() {
-      const playerName = document.getElementById('player-input').value;
-      if (playerName) {
-        const playerBox = document.createElement('div');
-        playerBox.classList.add('player-box');
-        playerBox.textContent = playerName;
-        playerBox.draggable = true;
-        playerBox.addEventListener('dragstart', drag);
-        playerBox.addEventListener('contextmenu', deletePlayer);
+<h1>Hockey Coach Lineup</h1>
 
-        document.getElementById('roster').appendChild(playerBox);
-        roster.push(playerName);
-        history.push({ action: 'add', player: playerName });
-        document.getElementById('player-input').value = '';
+<h2>Add Players to Roster</h2>
+<form id="addPlayerForm">
+  <input type="text" id="playerName" placeholder="Player Name" required>
+  <button type="submit">Add Player</button>
+</form>
+
+<h2>Roster</h2>
+<div id="roster"></div>
+
+<h2>Lineup</h2>
+<div id="lineup">
+  <!-- Forwards -->
+  <div class="line">
+    <div class="position-container">
+      <span class="position-label">F1</span>
+      <div id="F1" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F2</span>
+      <div id="F2" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F3</span>
+      <div id="F3" class="position"></div>
+    </div>
+  </div>
+  <div class="line">
+    <div class="position-container">
+      <span class="position-label">F4</span>
+      <div id="F4" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F5</span>
+      <div id="F5" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F6</span>
+      <div id="F6" class="position"></div>
+    </div>
+  </div>
+  <div class="line">
+    <div class="position-container">
+      <span class="position-label">F7</span>
+      <div id="F7" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F8</span>
+      <div id="F8" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F9</span>
+      <div id="F9" class="position"></div>
+    </div>
+  </div>
+
+  <!-- Defense -->
+  <div class="line">
+    <div class="position-container">
+      <span class="position-label">D1</span>
+      <div id="D1" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">D2</span>
+      <div id="D2" class="position"></div>
+    </div>
+  </div>
+  <div class="line">
+    <div class="position-container">
+      <span class="position-label">D3</span>
+      <div id="D3" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">D4</span>
+      <div id="D4" class="position"></div>
+    </div>
+  </div>
+  <div class="line">
+    <div class="position-container">
+      <span class="position-label">D5</span>
+      <div id="D5" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">D6</span>
+      <div id="D6" class="position"></div>
+    </div>
+  </div>
+
+  <!-- Goalie -->
+  <div class="line">
+    <div class="position-container">
+      <span class="position-label">G1</span>
+      <div id="G1" class="position"></div>
+    </div>
+  </div>
+</div>
+
+<button id="saveLineup">Save Lineup</button>
+<button id="loadLineup">Load Lineup</button>
+<button id="clearLineup">Clear Lineup</button>
+<button class="undo-btn" id="undoAction">Undo Last Action</button>
+
+<script>
+  const roster = document.getElementById("roster");
+  const form = document.getElementById("addPlayerForm");
+  let previousState = [];
+
+  function enableDragAndDrop(element) {
+    element.draggable = true;
+
+    element.addEventListener("dragstart", (event) => {
+      event.dataTransfer.setData("text/plain", element.id);
+      event.target.classList.add("dragging");
+    });
+
+    element.addEventListener("dragend", (event) => {
+      event.target.classList.remove("dragging");
+    });
+  }
+
+  function handleLongPress(player) {
+    let timeout;
+    player.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      timeout = setTimeout(() => {
+        player.remove();
+      }, 1000);
+    });
+    player.addEventListener("touchend", () => clearTimeout(timeout));
+  }
+
+  function addPlayerToRoster(playerName) {
+    const player = document.createElement("div");
+    player.className = "player";
+    player.textContent = playerName;
+    player.id = playerName;
+    enableDragAndDrop(player);
+    handleLongPress(player);
+
+    roster.appendChild(player);
+    previousState.push({ action: "add", player: playerName });
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const playerName = document.getElementById("playerName").value;
+    if (playerName) {
+      addPlayerToRoster(playerName);
+      document.getElementById("playerName").value = "";
+    }
+  });
+
+  function handleDrop(position) {
+    position.addEventListener("dragover", (e) => {
+      e.preventDefault();
+    });
+
+    position.addEventListener("drop", (e
+position.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const playerName = e.dataTransfer.getData("text/plain");
+      const playerElement = document.getElementById(playerName);
+
+      if (playerElement && !position.hasChildNodes()) {
+        position.textContent = playerElement.textContent;
+        position.classList.add("filled");
+        playerElement.remove();
+        previousState.push({ action: "move", player: playerName, from: playerElement.parentElement.id, to: position.id });
+      }
+    });
+  }
+
+  const lineupPositions = document.querySelectorAll(".position");
+  lineupPositions.forEach((position) => handleDrop(position));
+
+  document.getElementById("clearLineup").addEventListener("click", () => {
+    const allPositions = document.querySelectorAll(".position");
+    allPositions.forEach((position) => {
+      position.textContent = "";
+      position.classList.remove("filled");
+    });
+
+    const allPlayers = roster.querySelectorAll(".player");
+    allPlayers.forEach((player) => player.remove());
+    previousState.push({ action: "clear" });
+  });
+
+  document.getElementById("undoAction").addEventListener("click", () => {
+    const lastAction = previousState.pop();
+    if (lastAction) {
+      if (lastAction.action === "move") {
+        const player = document.getElementById(lastAction.player);
+        const fromPosition = document.getElementById(lastAction.from);
+        const toPosition = document.getElementById(lastAction.to);
+        fromPosition.appendChild(player);
+        toPosition.textContent = "";
+      } else if (lastAction.action === "add") {
+        const player = document.getElementById(lastAction.player);
+        player.remove();
+      } else if (lastAction.action === "clear") {
+        // Handle clear undo if necessary
       }
     }
+  });
 
-    function clearAll() {
-      document.getElementById('roster').innerHTML = '';
-      document.querySelectorAll('.lineup-spot').forEach(spot => spot.innerHTML = '');
-      roster = [];
-      history = [];
-    }
+  document.getElementById("saveLineup").addEventListener("click", () => {
+    const lineup = {};
+    document.querySelectorAll(".position.filled").forEach(position => {
+      lineup[position.id] = position.textContent;
+    });
+    localStorage.setItem("lineup", JSON.stringify(lineup));
+  });
 
-    function undoAction() {
-      const lastAction = history.pop();
-      if (lastAction) {
-        if (lastAction.action === 'add') {
-          const playerBoxes = document.querySelectorAll('.player-box');
-          playerBoxes[playerBoxes.length - 1].remove();
-          roster.pop();
-        }
-        // Add logic for other actions
-      }
-    }
-
-    function deletePlayer(event) {
-      event.preventDefault();
-      if (confirm('Do you really want to delete this player?')) {
-        event.target.remove();
-        roster = roster.filter(player => player !== event.target.textContent);
-        history.push({ action: 'delete', player: event.target.textContent });
-      }
-    }
-
-    function drag(event) {
-      event.dataTransfer.setData('text/plain', event.target.textContent);
-    }
-
-    document.querySelectorAll('.lineup-spot').forEach(spot => {
-      spot.addEventListener('dragover', event => event.preventDefault());
-      spot.addEventListener('drop', event => {
-        event.preventDefault();
-        const playerName = event.dataTransfer.getData('text/plain');
-        if (!event.target.textContent) {
-          event.target.textContent = playerName;
-          event.target.classList.add('player-box');
+  document.getElementById("loadLineup").addEventListener("click", () => {
+    const lineup = JSON.parse(localStorage.getItem("lineup"));
+    if (lineup) {
+      Object.keys(lineup).forEach(id => {
+        const position = document.getElementById(id);
+        if (position) {
+          position.textContent = lineup[id];
+          position.classList.add("filled");
         }
       });
-    });
-  </script>
+    }
+  });
+</script>
+
 </body>
 </html>
