@@ -6,20 +6,22 @@
     <title>Hockey Lineup Tool</title>
     <style>
         body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
         }
 
         header {
-            text-align: left;
+            text-align: center;
             padding: 1em;
             width: 100%;
+            background-color: #2c2c2c;
+            border-bottom: 2px solid #333;
         }
 
         header img {
@@ -29,6 +31,7 @@
         main {
             padding: 1em;
             width: 100%;
+            max-width: 800px;
         }
 
         section {
@@ -49,24 +52,42 @@
         }
 
         .player-box {
-            background-color: yellow;
+            background-color: #ffeb3b;
             border-radius: 5px;
             padding: 0.5em;
             cursor: grab;
             text-align: center;
             width: 150px; /* Large enough to hold 15 characters */
             box-sizing: border-box;
+            position: relative;
+        }
+
+        .player-box .delete-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
         }
 
         .spot {
             width: 150px; /* Large enough to hold 15 characters */
             height: 50px;
-            border: 2px dashed white;
+            border: 2px solid #000000;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: white;
-            color: black;
+            background-color: #ffffff;
+            color: #000000;
             text-align: center;
             box-sizing: border-box;
         }
@@ -159,6 +180,13 @@
                 playerBox.draggable = true;
                 playerBox.addEventListener('dragstart', dragStart);
                 playerBox.addEventListener('touchstart', longPress);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-button';
+                deleteButton.textContent = 'X';
+                deleteButton.addEventListener('click', () => deletePlayer(playerName));
+                playerBox.appendChild(deleteButton);
+
                 document.getElementById('player-list').appendChild(playerBox);
                 players.push(playerName);
                 actionHistory.push({ type: 'add', player: playerName });
@@ -186,6 +214,13 @@
                 playerBox.draggable = true;
                 playerBox.addEventListener('dragstart', dragStart);
                 playerBox.addEventListener('touchstart', longPress);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-button';
+                deleteButton.textContent = 'X';
+                deleteButton.addEventListener('click', () => deletePlayer(playerName));
+                playerBox.appendChild(deleteButton);
+
                 target.appendChild(playerBox);
                 actionHistory.push({ type: 'move', player: playerName, to: target.id });
                 removePlayerFromRoster(playerName);
@@ -207,6 +242,13 @@
             event.target.addEventListener('touchend', function cancelPress() {
                 clearTimeout(pressTimer);
             });
+        }
+
+        function deletePlayer(playerName) {
+            removePlayerFromRoster(playerName);
+            removePlayerFromLineup(playerName);
+            players = players.filter(p => p !== playerName);
+            actionHistory.push({ type: 'delete', player: playerName });
         }
 
         function removePlayerFromRoster(playerName) {
@@ -244,6 +286,13 @@
                     rosterPlayerBox.draggable = true;
                     rosterPlayerBox.addEventListener('dragstart', dragStart);
                     rosterPlayerBox.addEventListener('touchstart', longPress);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete-button';
+                    deleteButton.textContent = 'X';
+                    deleteButton.addEventListener('click', () => deletePlayer(lastAction.player));
+                    rosterPlayerBox.appendChild(deleteButton);
+
                     document.getElementById('player-list').appendChild(rosterPlayerBox);
                     players.push(lastAction.player);
                 } else if (lastAction.type === 'delete') {
@@ -253,6 +302,13 @@
                     playerBox.draggable = true;
                     playerBox.addEventListener('dragstart', dragStart);
                     playerBox.addEventListener('touchstart', longPress);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete-button';
+                    deleteButton.textContent = 'X';
+                    deleteButton.addEventListener('click', () => deletePlayer(lastAction.player));
+                    playerBox.appendChild(deleteButton);
+
                     document.getElementById('player-list').appendChild(playerBox);
                     players.push(lastAction.player);
                 }
