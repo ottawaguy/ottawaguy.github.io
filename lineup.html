@@ -54,13 +54,17 @@
     }
 
     .player-button {
-      background-color: yellow;
+      background-color: green;
       padding: 5px 10px;
       font-size: 14px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       min-width: 15ch;
+    }
+
+    .player-button.grey {
+      background-color: grey;
     }
 
     .delete-btn {
@@ -281,7 +285,7 @@
       enableDragAndDrop(playerButton);
     }
 
-    // Handle form submission to add a new player
+    // Handle form submission to add a player
     document.getElementById("addPlayerForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const playerName = document.getElementById("playerName").value.trim();
@@ -297,7 +301,6 @@
       const playerName = event.dataTransfer.getData("text/plain");
       const positionId = event.target.id;
 
-      // Validate if the player is already in the lineup
       if (playerInLineup.has(playerName)) {
         showFeedback(`Player "${playerName}" is already in the lineup.`);
         return;
@@ -309,7 +312,6 @@
         playerInLineup.add(playerName);
         showFeedback(`Player "${playerName}" added to ${positionId}`);
 
-        // Update previous state for undo functionality
         previousState.push({ action: "add", player: playerName, position: positionId });
       }
     }
@@ -368,5 +370,7 @@
       showFeedback("Lineup cleared.");
     });
   </script>
+
 </body>
 </html>
+
