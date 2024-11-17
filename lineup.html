@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 10px;
+      margin: 5px;
       background-color: black;
       color: white;
       max-width: 100%;
@@ -15,8 +15,8 @@
 
     #roster, .line {
       display: flex;
-      gap: 5px;
-      margin-bottom: 10px;
+      gap: 3px;
+      margin-bottom: 5px;
       flex-wrap: wrap;
       justify-content: center;
     }
@@ -24,7 +24,7 @@
     #lineup {
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 10px;
     }
 
     .line {
@@ -35,21 +35,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
     }
 
     .position-label {
-      font-size: 10px;
+      font-size: 8px;
     }
 
     .position {
-      width: 70px;
-      height: 40px;
+      width: 100px;
+      height: 50px;
       background-color: #444;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
+      border-radius: 5px;
+      border: 1px solid #666;
     }
 
     .position.filled {
@@ -57,56 +59,73 @@
     }
 
     .player {
-      padding: 3px;
-      font-size: 10px;
+      padding: 4px;
+      font-size: 12px;
       text-align: center;
       background-color: #333;
       color: white;
       cursor: grab;
       border: 1px solid #ccc;
-      margin: 0;
+      border-radius: 5px;
+      width: 90%;
+    }
+
+    form {
+      text-align: center;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    input {
+      padding: 4px;
+      margin-right: 5px;
+      font-size: 12px;
     }
 
     button {
       background-color: #444;
       color: white;
       border: 1px solid #ccc;
-      padding: 8px 12px;
+      padding: 6px 10px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 12px;
       margin: 5px auto;
       display: block;
+      border-radius: 5px;
     }
 
     button:hover {
       background-color: #666;
     }
 
-    form {
+    h1, h2 {
       text-align: center;
+      margin: 5px 0;
     }
 
-    input {
-      padding: 5px;
-      margin-right: 5px;
+    h1 {
+      font-size: 18px;
+    }
+
+    h2 {
       font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-<h1 style="text-align: center;">Hockey Coach Lineup</h1>
+<h1>Hockey Coach Lineup</h1>
 
-<h2 style="text-align: center;">Add Players to Roster</h2>
+<h2>Add Players to Roster</h2>
 <form id="addPlayerForm">
   <input type="text" id="playerName" placeholder="Player Name" required>
   <button type="submit">Add Player</button>
 </form>
 
-<h2 style="text-align: center;">Roster</h2>
+<h2>Roster</h2>
 <div id="roster"></div>
 
-<h2 style="text-align: center;">Lineup</h2>
+<h2>Lineup</h2>
 <div id="lineup">
   <!-- Forwards -->
   <div class="line">
