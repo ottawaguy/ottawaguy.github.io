@@ -41,7 +41,7 @@
     }
 
     .position {
-      width: 160px;
+      width: 180px;
       height: 60px;
       border: 2px solid #fff;
       background-color: #333;
@@ -77,6 +77,8 @@
       cursor: pointer;
       text-align: center;
       color: white;
+      position: relative;
+      min-width: 100px;
     }
 
     .player-button.blue {
@@ -84,15 +86,19 @@
     }
 
     .delete-button {
-      margin-left: 5px;
       background-color: red;
       color: white;
       border: none;
       border-radius: 50%;
       width: 20px;
       height: 20px;
-      font-size: 14px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
+      position: absolute;
+      right: -25px; /* Prevents overlap */
     }
 
     #buttons {
@@ -244,7 +250,9 @@
       const playerButton = document.createElement("div");
       playerButton.id = playerId;
       playerButton.className = "player-button";
-      playerButton.innerHTML = `${playerName} <button class="delete-button" onclick="deletePlayerFromRoster('${playerId}')">X</button>`;
+      playerButton.innerHTML = `
+        ${playerName}
+        <button class="delete-button" onclick="deletePlayerFromRoster('${playerId}')">X</button>`;
       roster.appendChild(playerButton);
       enableDragAndDrop(playerButton);
     }
