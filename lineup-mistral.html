@@ -54,11 +54,13 @@
             padding: 0.5em;
             cursor: grab;
             text-align: center;
+            width: 150px; /* Large enough to hold 15 characters */
+            box-sizing: border-box;
         }
 
         .spot {
-            width: 100px;
-            height: 100px;
+            width: 150px; /* Large enough to hold 15 characters */
+            height: 50px;
             border: 2px dashed white;
             display: flex;
             align-items: center;
@@ -66,6 +68,7 @@
             background-color: white;
             color: black;
             text-align: center;
+            box-sizing: border-box;
         }
 
         button {
@@ -176,7 +179,7 @@
             event.preventDefault();
             const playerName = event.dataTransfer.getData('text/plain');
             const target = event.target;
-            if (target.classList.contains('spot') && target.children.length === 0) {
+            if (target.classList.contains('spot')) {
                 const playerBox = document.createElement('div');
                 playerBox.className = 'player-box';
                 playerBox.textContent = playerName;
@@ -186,20 +189,7 @@
                 target.appendChild(playerBox);
                 actionHistory.push({ type: 'move', player: playerName, to: target.id });
                 removePlayerFromRoster(playerName);
-            } else if (target.classList.contains('spot') && target.children.length > 0) {
-                const existingPlayerBox = target.querySelector('.player-box');
-                const existingPlayerName = existingPlayerBox.textContent;
-                existingPlayerBox.remove();
-                const playerBox = document.createElement('div');
-                playerBox.className = 'player-box';
-                playerBox.textContent = playerName;
-                playerBox.draggable = true;
-                playerBox.addEventListener('dragstart', dragStart);
-                playerBox.addEventListener('touchstart', longPress);
-                target.appendChild(playerBox);
-                actionHistory.push({ type: 'move', player: playerName, to: target.id });
-                actionHistory.push({ type: 'move', player: existingPlayerName, to: 'roster' });
-                addPlayerToRoster(existingPlayerName);
+                removePlayerFromLineup(playerName);
             }
         }
 
@@ -227,15 +217,11 @@
             }
         }
 
-        function addPlayerToRoster(playerName) {
-            const playerBox = document.createElement('div');
-            playerBox.className = 'player-box';
-            playerBox.textContent = playerName;
-            playerBox.draggable = true;
-            playerBox.addEventListener('dragstart', dragStart);
-            playerBox.addEventListener('touchstart', longPress);
-            document.getElementById('player-list').appendChild(playerBox);
-            players.push(playerName);
+        function removePlayerFromLineup(playerName) {
+            const playerBox = document.querySelector(`.spot .player-box:contains(${playerName})`);
+            if (playerBox) {
+                playerBox.remove();
+            }
         }
 
         function undoAction() {
