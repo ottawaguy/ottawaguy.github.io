@@ -27,29 +27,44 @@
       gap: 15px;
     }
 
-    .player, .position {
-      padding: 8px;
-      border: 1px solid #ccc;
-      text-align: center;
-      cursor: grab;
-      background-color: #333;
-      color: white;
-      font-size: 14px;
+    .line {
+      justify-content: space-around;
     }
 
-    .player {
-      width: 100px;
-      margin: 5px;
+    .position-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .position-label {
+      font-size: 10px;
     }
 
     .position {
       width: 70px;
       height: 40px;
       background-color: #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
     .position.filled {
       background-color: #555;
+    }
+
+    .player {
+      padding: 3px;
+      font-size: 10px;
+      text-align: center;
+      background-color: #333;
+      color: white;
+      cursor: grab;
+      border: 1px solid #ccc;
+      margin: 0;
     }
 
     button {
@@ -95,38 +110,86 @@
 <div id="lineup">
   <!-- Forwards -->
   <div class="line">
-    <div id="F1" class="position">F1</div>
-    <div id="F2" class="position">F2</div>
-    <div id="F3" class="position">F3</div>
+    <div class="position-container">
+      <span class="position-label">F1</span>
+      <div id="F1" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F2</span>
+      <div id="F2" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F3</span>
+      <div id="F3" class="position"></div>
+    </div>
   </div>
   <div class="line">
-    <div id="F4" class="position">F4</div>
-    <div id="F5" class="position">F5</div>
-    <div id="F6" class="position">F6</div>
+    <div class="position-container">
+      <span class="position-label">F4</span>
+      <div id="F4" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F5</span>
+      <div id="F5" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F6</span>
+      <div id="F6" class="position"></div>
+    </div>
   </div>
   <div class="line">
-    <div id="F7" class="position">F7</div>
-    <div id="F8" class="position">F8</div>
-    <div id="F9" class="position">F9</div>
+    <div class="position-container">
+      <span class="position-label">F7</span>
+      <div id="F7" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F8</span>
+      <div id="F8" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">F9</span>
+      <div id="F9" class="position"></div>
+    </div>
   </div>
 
   <!-- Defense -->
   <div class="line">
-    <div id="D1" class="position">D1</div>
-    <div id="D2" class="position">D2</div>
+    <div class="position-container">
+      <span class="position-label">D1</span>
+      <div id="D1" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">D2</span>
+      <div id="D2" class="position"></div>
+    </div>
   </div>
   <div class="line">
-    <div id="D3" class="position">D3</div>
-    <div id="D4" class="position">D4</div>
+    <div class="position-container">
+      <span class="position-label">D3</span>
+      <div id="D3" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">D4</span>
+      <div id="D4" class="position"></div>
+    </div>
   </div>
   <div class="line">
-    <div id="D5" class="position">D5</div>
-    <div id="D6" class="position">D6</div>
+    <div class="position-container">
+      <span class="position-label">D5</span>
+      <div id="D5" class="position"></div>
+    </div>
+    <div class="position-container">
+      <span class="position-label">D6</span>
+      <div id="D6" class="position"></div>
+    </div>
   </div>
 
   <!-- Goalie -->
   <div class="line">
-    <div id="G1" class="position">G1</div>
+    <div class="position-container">
+      <span class="position-label">G1</span>
+      <div id="G1" class="position"></div>
+    </div>
   </div>
 </div>
 
@@ -135,14 +198,10 @@
 
 <script>
   const roster = document.getElementById("roster");
-  const lineup = document.getElementById("lineup");
   const form = document.getElementById("addPlayerForm");
-  const saveButton = document.getElementById("saveLineup");
-  const loadButton = document.getElementById("loadLineup");
 
   function enableDragAndDrop(element) {
     element.draggable = true;
-
     element.addEventListener("dragstart", (event) => {
       event.dataTransfer.setData("text/plain", element.outerHTML);
       event.target.classList.add("dragging");
@@ -179,46 +238,20 @@
     const target = event.target;
 
     if (target.classList.contains("position") || target === roster) {
-      // Remove player from previous slot
       const draggingElement = document.querySelector(".dragging");
       if (draggingElement) {
-        draggingElement.parentNode.innerHTML = draggingElement.parentNode.id; // Reset slot
+        draggingElement.parentNode.innerHTML = "";
         draggingElement.remove();
       }
 
-      // Add player to new slot
       if (target.classList.contains("position")) {
-        target.innerHTML = ""; // Clear previous content
+        target.innerHTML = "";
         target.appendChild(player);
         target.classList.add("filled");
       } else {
         roster.appendChild(player);
       }
       enableDragAndDrop(player);
-    }
-  });
-
-  saveButton.addEventListener("click", () => {
-    const lineupData = {};
-    document.querySelectorAll(".position").forEach((slot) => {
-      lineupData[slot.id] = slot.innerHTML.trim();
-    });
-    localStorage.setItem("lineup", JSON.stringify(lineupData));
-    alert("Lineup saved!");
-  });
-
-  loadButton.addEventListener("click", () => {
-    const lineupData = JSON.parse(localStorage.getItem("lineup"));
-    if (lineupData) {
-      document.querySelectorAll(".position").forEach((slot) => {
-        slot.innerHTML = lineupData[slot.id] || slot.id;
-        slot.classList.toggle("filled", !!lineupData[slot.id]);
-        const player = slot.querySelector(".player");
-        if (player) enableDragAndDrop(player);
-      });
-      alert("Lineup loaded!");
-    } else {
-      alert("No saved lineup found!");
     }
   });
 </script>
