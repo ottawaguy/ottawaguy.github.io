@@ -373,6 +373,10 @@
         playerElement.style.backgroundColor = "yellow";
         position.classList.add("filled");
         previousState.push({ action: "move", player: playerName, from: playerElement.parentElement.id, to: position.id });
+
+        // Change background to grey in roster if player is moved to lineup
+        const playerButton = document.getElementById(playerName);
+        playerButton.style.backgroundColor = "grey";
       }
     });
   }
