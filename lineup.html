@@ -9,11 +9,15 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
-    #roster, #lineup {
+    #roster, .line {
       display: flex;
-      flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+    }
+    #lineup {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
     .player, .position {
       padding: 10px;
@@ -55,26 +59,40 @@
 <h2>Lineup</h2>
 <div id="lineup">
   <!-- Forwards -->
-  <div id="F1" class="position">F1</div>
-  <div id="F2" class="position">F2</div>
-  <div id="F3" class="position">F3</div>
-  <div id="F4" class="position">F4</div>
-  <div id="F5" class="position">F5</div>
-  <div id="F6" class="position">F6</div>
-  <div id="F7" class="position">F7</div>
-  <div id="F8" class="position">F8</div>
-  <div id="F9" class="position">F9</div>
-  
+  <div class="line">
+    <div id="F1" class="position">F1</div>
+    <div id="F2" class="position">F2</div>
+    <div id="F3" class="position">F3</div>
+  </div>
+  <div class="line">
+    <div id="F4" class="position">F4</div>
+    <div id="F5" class="position">F5</div>
+    <div id="F6" class="position">F6</div>
+  </div>
+  <div class="line">
+    <div id="F7" class="position">F7</div>
+    <div id="F8" class="position">F8</div>
+    <div id="F9" class="position">F9</div>
+  </div>
+
   <!-- Defense -->
-  <div id="D1" class="position">D1</div>
-  <div id="D2" class="position">D2</div>
-  <div id="D3" class="position">D3</div>
-  <div id="D4" class="position">D4</div>
-  <div id="D5" class="position">D5</div>
-  <div id="D6" class="position">D6</div>
+  <div class="line">
+    <div id="D1" class="position">D1</div>
+    <div id="D2" class="position">D2</div>
+  </div>
+  <div class="line">
+    <div id="D3" class="position">D3</div>
+    <div id="D4" class="position">D4</div>
+  </div>
+  <div class="line">
+    <div id="D5" class="position">D5</div>
+    <div id="D6" class="position">D6</div>
+  </div>
 
   <!-- Goalie -->
-  <div id="G1" class="position">G1</div>
+  <div class="line">
+    <div id="G1" class="position">G1</div>
+  </div>
 </div>
 
 <button id="saveLineup">Save Lineup</button>
@@ -87,45 +105,58 @@
   const saveButton = document.getElementById("saveLineup");
   const loadButton = document.getElementById("loadLineup");
 
+  function enableDragAndDrop(element) {
+    element.draggable = true;
+    element.addEventListener("dragstart", (event) => {
+      event.dataTransfer.setData("text/plain", element.outerHTML);
+      element.classList.add("dragging");
+    });
+    element.addEventListener("dragend", () => {
+      element.classList.remove("dragging");
+    });
+  }
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const name = document.getElementById("playerName").value;
 
     const player = document.createElement("div");
     player.className = "player";
-    player.draggable = true;
     player.textContent = name;
-
-    player.addEventListener("dragstart", (event) => {
-      event.dataTransfer.setData("text", player.outerHTML);
-    });
+    enableDragAndDrop(player);
 
     roster.appendChild(player);
     form.reset();
   });
 
-  lineup.addEventListener("dragover", (event) => {
+  document.body.addEventListener("dragover", (event) => {
     event.preventDefault();
   });
 
-  lineup.addEventListener("drop", (event) => {
+  document.body.addEventListener("drop", (event) => {
     event.preventDefault();
-    const data = event.dataTransfer.getData("text");
-    const droppedPlayer = document.createElement("div");
-    droppedPlayer.innerHTML = data;
-    const player = droppedPlayer.firstChild;
+    const data = event.dataTransfer.getData("text/plain");
+    const droppedElement = document.createElement("div");
+    droppedElement.innerHTML = data;
+    const player = droppedElement.firstChild;
     const target = event.target;
 
-    if (target.classList.contains("position") && !target.classList.contains("filled")) {
-      target.textContent = player.textContent;
-      target.classList.add("filled");
+    if (target.classList.contains("position") || target === roster) {
+      if (target.classList.contains("position")) {
+        target.innerHTML = "";
+        target.appendChild(player);
+        target.classList.add("filled");
+      } else {
+        roster.appendChild(player);
+      }
+      enableDragAndDrop(player);
     }
   });
 
   saveButton.addEventListener("click", () => {
     const lineupData = {};
     document.querySelectorAll(".position").forEach((slot) => {
-      lineupData[slot.id] = slot.textContent;
+      lineupData[slot.id] = slot.innerHTML.trim();
     });
     localStorage.setItem("lineup", JSON.stringify(lineupData));
     alert("Lineup saved!");
@@ -135,8 +166,10 @@
     const lineupData = JSON.parse(localStorage.getItem("lineup"));
     if (lineupData) {
       document.querySelectorAll(".position").forEach((slot) => {
-        slot.textContent = lineupData[slot.id] || slot.id;
+        slot.innerHTML = lineupData[slot.id] || slot.id;
         slot.classList.toggle("filled", !!lineupData[slot.id]);
+        const player = slot.querySelector(".player");
+        if (player) enableDragAndDrop(player);
       });
       alert("Lineup loaded!");
     } else {
