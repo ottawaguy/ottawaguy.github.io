@@ -311,7 +311,6 @@
         event.target.textContent = playerName;
         playerInLineup.add(playerName);
         showFeedback(`Player "${playerName}" added to ${positionId}`);
-
         previousState.push({ action: "add", player: playerName, position: positionId });
       }
     }
@@ -333,8 +332,9 @@
       const lastAction = previousState.pop();
       if (lastAction) {
         if (lastAction.action === "add") {
-          document.getElementById(lastAction.position).classList.remove("filled");
-          document.getElementById(lastAction.position).textContent = "";
+          const position = document.getElementById(lastAction.position);
+          position.classList.remove("filled");
+          position.textContent = "";
           playerInLineup.delete(lastAction.player);
         } else if (lastAction.action === "delete") {
           addPlayerToRoster(lastAction.player);
