@@ -74,8 +74,8 @@
       padding: 4px;
       font-size: 14px;
       text-align: center;
-      background-color: #333;
-      color: white;
+      background-color: yellow;
+      color: black;
       cursor: grab;
       border: 1px solid #ccc;
       border-radius: 5px;
@@ -294,7 +294,9 @@
     position.addEventListener("drop", (event) => {
       const playerName = event.dataTransfer.getData("text/plain");
       const playerElement = document.getElementById(playerName);
-      if (playerElement) {
+
+      // Ensure player is only added once
+      if (playerElement && !position.hasChildNodes()) {
         position.textContent = playerElement.textContent;
         position.classList.add("filled");
         playerElement.remove(); // Remove player from roster once placed
