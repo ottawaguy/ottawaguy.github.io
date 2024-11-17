@@ -13,6 +13,17 @@
       max-width: 100%;
     }
 
+    #logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    #logo img {
+      width: 80px;
+      height: auto;
+    }
+
     #roster, .line {
       display: flex;
       gap: 3px;
@@ -58,6 +69,20 @@
       background-color: #555;
     }
 
+    .position .delete-btn {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 20px;
+      height: 20px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
     .player {
       padding: 4px;
       font-size: 12px;
@@ -67,7 +92,13 @@
       cursor: grab;
       border: 1px solid #ccc;
       border-radius: 5px;
-      width: 90%;
+      display: inline-block;
+    }
+
+    .player.roster {
+      padding: 2px 8px;
+      font-size: 10px;
+      border-radius: 10px;
     }
 
     form {
@@ -114,6 +145,10 @@
 </head>
 <body>
 
+<div id="logo">
+  <img src="https://upload.wikimedia.org/wikipedia/en/e/e9/Cumberland_Dukes_Hockey_Logo.png" alt="Cumberland Dukes Logo">
+</div>
+
 <h1>Hockey Coach Lineup</h1>
 
 <h2>Add Players to Roster</h2>
@@ -142,74 +177,7 @@
       <div id="F3" class="position"></div>
     </div>
   </div>
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">F4</span>
-      <div id="F4" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F5</span>
-      <div id="F5" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F6</span>
-      <div id="F6" class="position"></div>
-    </div>
-  </div>
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">F7</span>
-      <div id="F7" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F8</span>
-      <div id="F8" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">F9</span>
-      <div id="F9" class="position"></div>
-    </div>
-  </div>
-
-  <!-- Defense -->
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">D1</span>
-      <div id="D1" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">D2</span>
-      <div id="D2" class="position"></div>
-    </div>
-  </div>
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">D3</span>
-      <div id="D3" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">D4</span>
-      <div id="D4" class="position"></div>
-    </div>
-  </div>
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">D5</span>
-      <div id="D5" class="position"></div>
-    </div>
-    <div class="position-container">
-      <span class="position-label">D6</span>
-      <div id="D6" class="position"></div>
-    </div>
-  </div>
-
-  <!-- Goalie -->
-  <div class="line">
-    <div class="position-container">
-      <span class="position-label">G1</span>
-      <div id="G1" class="position"></div>
-    </div>
-  </div>
+  <!-- Add more lines as required -->
 </div>
 
 <button id="saveLineup">Save Lineup</button>
@@ -229,6 +197,19 @@
     element.addEventListener("dragend", () => {
       event.target.classList.remove("dragging");
     });
+
+    element.addEventListener("contextmenu", (e) => e.preventDefault());
+    element.addEventListener("touchstart", handleLongPress(element));
+  }
+
+  function handleLongPress(player) {
+    let timeout;
+    player.addEventListener("touchstart", (e) => {
+      timeout = setTimeout(() => {
+        player.remove();
+      }, 1000);
+    });
+    player.addEventListener("touchend", () => clearTimeout(timeout));
   }
 
   form.addEventListener("submit", (e) => {
@@ -236,7 +217,7 @@
     const name = document.getElementById("playerName").value;
 
     const player = document.createElement("div");
-    player.className = "player";
+    player.className = "player roster";
     player.textContent = name;
     enableDragAndDrop(player);
 
@@ -256,22 +237,21 @@
     const player = droppedElement.firstChild;
     const target = event.target;
 
-    if (target.classList.contains("position") || target === roster) {
-      const draggingElement = document.querySelector(".dragging");
-      if (draggingElement) {
-        draggingElement.parentNode.innerHTML = "";
-        draggingElement.remove();
-      }
+    if (target.classList.contains("position")) {
+      target.innerHTML = "";
+      target.appendChild(player);
 
-      if (target.classList.contains("position")) {
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "x";
+      deleteBtn.addEventListener("click", () => {
         target.innerHTML = "";
-        target.appendChild(player);
-        target.classList.add("filled");
-      } else {
-        roster.appendChild(player);
-      }
-      enableDragAndDrop(player);
+      });
+      target.appendChild(deleteBtn);
+    } else if (target === roster) {
+      roster.appendChild(player);
     }
+    enableDragAndDrop(player);
   });
 </script>
 
